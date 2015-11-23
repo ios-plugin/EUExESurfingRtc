@@ -43,7 +43,7 @@
         
         mMotionManager = [[CMMotionManager alloc]init];
         
-        initCWDebugLog();
+        //initCWDebugLog();
         [self checkNetWorkReachability];//检测网络切换
         
         //注册本地推送
@@ -58,6 +58,28 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
     return self;
+}
+
+-(void)cbLogStatus:(NSString*)senser{
+    [self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:senser];
+}
+
+-(void)onGlobalStatus:(NSString*)senser{
+    NSDateFormatter *dateFormat=[[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"HH:mm:ss"];
+    //[dateFormat setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
+//    NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+//    [dateFormat setLocale:usLocale];
+//    [usLocale release];
+    NSString* datestr = [dateFormat stringFromDate:[NSDate date]];
+    [dateFormat release];
+    
+    NSString* strs = [NSString stringWithFormat:@"%@: %@",datestr,senser];
+    [self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:0 strData:strs];
+}
+
+-(void)cbCallStatus:(NSString*)senser{
+    [self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:senser];
 }
 
 -(void)setAppKeyAndAppId:(NSMutableArray *)inArgument{
@@ -100,12 +122,12 @@
             
             self.x = [[dict objectForKey:@"x"] intValue];
             self.y = [[dict objectForKey:@"y"] intValue];
-            self.width = [[dict objectForKey:@"width"]intValue];
-            self.height = [[dict objectForKey:@"height"]intValue];
-            self.x1 = [[dictt objectForKey:@"x1"]intValue];
-            self.y1 = [[dictt objectForKey:@"y1"]intValue];
-            self.width1 = [[dictt objectForKey:@"width1"]intValue];
-            self.height1 = [[dictt objectForKey:@"height1"]intValue];
+            self.width = [[dict objectForKey:@"w"]intValue];
+            self.height = [[dict objectForKey:@"h"]intValue];
+            self.x1 = [[dictt objectForKey:@"x"]intValue];
+            self.y1 = [[dictt objectForKey:@"y"]intValue];
+            self.width1 = [[dictt objectForKey:@"w"]intValue];
+            self.height1 = [[dictt objectForKey:@"h"]intValue];
             self.str = [NSString stringWithFormat:@"%d",number];
             
             if (mSDKObj)
@@ -127,8 +149,11 @@
             [mSDKObj doNavigation:@"cloud2"];
             
         }else{
-           [self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:@"ERROR:PARM_ERROR"];
+            [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
         }
+    }
+    else{
+        [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
     }
 }
 
@@ -137,8 +162,7 @@
     if(!mSDKObj)
     {
         [self setLog:@"请先初始化"];
-        
-         [self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:@"ERROR:UNINIT"];
+        [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:UNINIT" waitUntilDone:NO];
         return;
     }
     if (!mAccObj)
@@ -151,7 +175,7 @@
         //获取到返回结果后，请调用doAccRegister接口进行注册，传入参数为服务器返回的结构
         if([self.str isEqualToString:@"0"]){
         
-            [self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:@"ERROR:PARM_ERROR"];
+            [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
             
             return;
         }else{
@@ -174,6 +198,7 @@
 //导航结果回调
 -(void)onNavigationResp:(int)code error:(NSString*)error
 {
+    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ClientListener:onInit,result=%d",code] waitUntilDone:NO];
     if (0 == code)
     {
         [self setLog:[NSString stringWithFormat:@"初始化成功"]];
@@ -189,11 +214,16 @@
         [self setLog:[NSString stringWithFormat:@"初始化失败:%d,%@",code,error]];
         [mSDKObj release];
         mSDKObj = nil;
+        
+        if(code == -1001)//没有网络
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1001" waitUntilDone:NO];
+        else if(code == -1002)//切换网络
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1002" waitUntilDone:NO];
+        else if(code == -1003)//网络差
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1003" waitUntilDone:NO];
+        else if(code == -1004)//重连失败需要重登录
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1004" waitUntilDone:NO];
     }
-}
-
--(void)cbLogStatus:(NSString*)senser{
-    [self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:senser];
 }
 
 //注册结果回调
@@ -235,17 +265,25 @@
     }
     NSString* sReason = obj;
     
+    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"获取token:%d reason:%@",nRspCode,sReason] waitUntilDone:NO];
     if (nRspCode == 200)
     {
         [self setLog:[NSString stringWithFormat:@"登录成功,距下次注册%d秒",nExpire]];
         [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"OK:LOGIN" waitUntilDone:NO];
-       
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=200" waitUntilDone:NO];
     }
     else
     {
         [self setLog:[NSString stringWithFormat:@"登录失败:%d:%@",nRspCode,sReason]];
-        [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
-        
+        [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:[NSString stringWithFormat:@"ERROR:获取token失败 [status:%d]%@",nRspCode,sReason] waitUntilDone:NO];
+        if(nRspCode == -1001)//没有网络
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1001" waitUntilDone:NO];
+        else if(nRspCode == -1002)//切换网络
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1002" waitUntilDone:NO];
+        else if(nRspCode == -1003)//网络差
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1003" waitUntilDone:NO];
+        else if(nRspCode == -1004)//重连失败需要重登录
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1004" waitUntilDone:NO];
     }
     
     return EC_OK;
@@ -265,7 +303,7 @@
     
     NSString* strs = [NSString stringWithFormat:@"%@:%@",datestr,log];
     NSLog(@"++++==>>>%@",strs);
-    [self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:1 strData:strs];
+    //[self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:1 strData:strs];
    // [[NSUserDefaults standardUserDefaults]setObject:str forKey:[NSString stringWithFormat:@"ViewLog%d",mLogIndex]];
     mLogIndex++;
 }
@@ -278,6 +316,19 @@
 
 -(int)onNotifyMessage:(NSDictionary*)result  accObj:(AccObj*)accObj
 {
+    CWLogDebug(@"%s result is %@onNotify:%@",__FUNCTION__,result,accObj);
+    NSString* kickedBy = [result objectForKey:@"kickedBy"];//同一账号不同设备登录被踢出
+    NSString* multiLogin = [result objectForKey:@"multiLogin"];//多终端登录
+    
+    if(kickedBy)//被踢下线
+    {
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1500" waitUntilDone:NO];
+    }
+    else if(multiLogin)//多终端登录
+    {
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1501" waitUntilDone:NO];
+    }
+    
     return EC_OK;
 }
 
@@ -334,8 +385,6 @@
                                  @"",KEY_CALL_INFO,
                                  nil];
             NSLog(@"发送信息=======>>>%@",dic);
-            //发起呼叫 doMakeCall:
-            //[self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"OK:CALLING"];
             int ret = [mCallObj doMakeCall:dic];
             if (EC_OK > ret)
             {
@@ -347,9 +396,9 @@
                 }
                 
                 [self setLog:[NSString stringWithFormat:@"创建呼叫失败:%@",[SdkObj ECodeToStr:ret]]];
-                [self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"ERROR:PARM_ERROR"];
-
+                [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
             }
+            [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:CALLING" waitUntilDone:NO];
             //切换音频播放设备；doSwitchAudioDevice:
             [mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
         }
@@ -358,6 +407,7 @@
     //接听
     if (MSG_ACCEPT == msgid)//接听
     {
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
         if (mCallObj.CallMedia == MEDIA_TYPE_AUDIO)
         {
             
@@ -370,10 +420,12 @@
             [self setLog:@"视频已接听"];
             [mCallObj doAcceptCall:[NSNumber numberWithInt:self.accepptType]];
         }
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:CALLING" waitUntilDone:NO];
         return;
     }
     if (MSG_REJECT == msgid)//拒接
     {
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         [self setLog:@"拒接中......"];
        
         if (mCallObj)
@@ -390,6 +442,7 @@
     }
     if (MSG_HANGUP == msgid)//挂断
     {
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         if (mCallObj)
         {
             [mCallObj doHangupCall];
@@ -400,7 +453,8 @@
         [self setLog:@"呼叫已结束"];
         [localVideoView removeFromSuperview];
         [remoteVideoView removeFromSuperview];
-       
+       [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"call hangup" waitUntilDone:NO];
+        
         return;
     }
     if (MSG_MUTE == msgid)//静音
@@ -444,10 +498,6 @@
     }
 }
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>以上为”监听“部分>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
--(void)cbCallStatus:(NSString*)senser{
-    [self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:senser];
-}
-
 //呼叫事件回调
 -(int)onCallBack:(SDK_CALLBACK_TYPE)type code:(int)code callObj:(CallObj*)callObj
 {
@@ -455,16 +505,17 @@
     //不同事件类型见SDK_CALLBACK_TYPE
     if(type == SDK_CALLBACK_RING)
     {
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:CALLING" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnecting" waitUntilDone:NO];
     }
     else if (type == SDK_CALLBACK_ACCEPTED)
     {
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:ACCEPTING" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
         [self setCallIncomingFlag:NO];
     }
     else  if (type == SDK_CALLBACK_CLOSED)
     {
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:CLOSING" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=200"] waitUntilDone:NO];
         [localVideoView removeFromSuperview];
         [remoteVideoView removeFromSuperview];
         if (mCallObj)
@@ -476,7 +527,8 @@
     }
     else  if (type == SDK_CALLBACK_FAILED)
     {
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:FAILLING" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=%d",code] waitUntilDone:NO];
         [localVideoView removeFromSuperview];
         [remoteVideoView removeFromSuperview];
         if (mCallObj)
@@ -521,6 +573,7 @@
         int ret = [callObj doSetCallVideoWindow:remoteVideoView localVideoWindow:localVideoView];
         NSLog(@">>>%d",ret);
         [self setLog:[NSString stringWithFormat:@"%d",ret]];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onVideo" waitUntilDone:NO];
     }
     [self setMotionStatus:YES];
     [self setCallIncomingFlag:NO];
@@ -535,30 +588,51 @@
     int callType = [[param objectForKey:KEY_CALL_TYPE]intValue];
     NSLog(@"%d",callType);
     NSString* uri = [param objectForKey:KEY_CALLER];
+    NSString* ci = [param objectForKey:KEY_CALL_INFO];
     
+    const char* cacc = [uri UTF8String];
+    int strindex1=0,strindex2=0;
+    int l = (int)strlen(cacc);
+    for(int i = 0;i<l;i++)
+    {
+        if(cacc[i]=='-')
+        {
+            strindex1=i;
+            break;
+        }
+    }
+    for(int i = 0;i<l;i++)
+    {
+        if(cacc[i]=='~')
+        {
+            strindex2=i;
+            break;
+        }
+    }
+    NSString* accNum = [[NSString stringWithUTF8String:cacc] substringWithRange:NSMakeRange(strindex1+1, strindex2-strindex1-1)];
+    
+    NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         ci,KEY_CALL_INFO,
+                         [NSNumber numberWithInt:callType],@"t",
+                         [NSNumber numberWithInt:2],@"dir",
+                         accNum,@"uri",
+                         nil];
+    NSError *parseError = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
+    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSMutableString *mutStr = [NSMutableString stringWithString:jsonString];
+    NSRange range = {0,jsonString.length};
+    [mutStr replaceOccurrencesOfString:@" " withString:@"" options:NSLiteralSearch range:range];
+    NSRange range2 = {0,mutStr.length};
+    [mutStr replaceOccurrencesOfString:@"\n" withString:@"" options:NSLiteralSearch range:range2];
+    NSRange range3 = {0,mutStr.length};
+    [mutStr replaceOccurrencesOfString:@"\\" withString:@"" options:NSLiteralSearch range:range3];
+//    [jsonString stringByReplacingOccurrencesOfString:@"\\n" withString:@""];
+//    [jsonString stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+    NSString* str = [NSString stringWithFormat:@"DeviceListener:onNewCall,call=%@", mutStr];
+    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:str waitUntilDone:NO];
     if ([self isBackground])
     {
-        const char* cacc = [uri UTF8String];
-        int strindex1=0,strindex2=0;
-        int l = (int)strlen(cacc);
-        for(int i = 0;i<l;i++)
-        {
-            if(cacc[i]=='-')
-            {
-                strindex1=i;
-                break;
-            }
-        }
-        for(int i = 0;i<l;i++)
-        {
-            if(cacc[i]=='~')
-            {
-                strindex2=i;
-                break;
-            }
-        }
-        NSString* accNum = [[NSString stringWithUTF8String:cacc] substringWithRange:NSMakeRange(strindex1+1, strindex2-strindex1-1)];
-        
         [self setCallIncomingFlag:YES];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithInt:callType] forKey:KEY_CALL_TYPE];
         [[NSUserDefaults standardUserDefaults]setObject:uri     forKey:KEY_CALLER];
@@ -568,13 +642,11 @@
     }
     if (callType==1||callType==5||callType==9)
     {
-         //[self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"OK:INCOMING"];
         [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
     }
     
     if (callType == 3 || callType == 7 || callType == 11)
     {
-        //[self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"OK:INCOMING"];
         [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
 
         DAPIPView* dvItem = [[DAPIPView alloc] init];
@@ -628,7 +700,7 @@
     if(!mSDKObj)
     {
         [self setLog:@"请先初始化"];
-         [self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"ERROR:UNREGISTER"];
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
         
         return;
     }
@@ -690,7 +762,7 @@
         if(!mSDKObj)
         {
             [self setLog:@"请先初始化"];
-             [self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"ERROR:UNREGISTER"];
+            [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
             return;
         }
         
@@ -741,7 +813,7 @@
             mSDKObj = nil;
             mLogIndex = 0;
             [self setLog:@"release完毕"];
-            [self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:@"OK:LOGOUT"];
+            [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"OK:LOGOUT" waitUntilDone:NO];
         }
         [localVideoView removeFromSuperview];
         [remoteVideoView removeFromSuperview];
@@ -1014,9 +1086,15 @@
         return;
     CWLogDebug(@"networkChanged");
     if(netstatus)
+    {
         [mSDKObj onAppEnterBackground];//网络恢复后进行重连
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1002" waitUntilDone:NO];
+    }
     else
     {
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1001" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"pls check network" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         [mSDKObj onNetworkChanged];//网络断开后销毁网络数据
         
         if(mCallObj)//通话被迫结束，销毁通话界面
@@ -1064,14 +1142,12 @@
                        {
                            if (callType==1||callType==5||callType==9)
                            {
-                               //[self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"OK:INCOMING"];
                                [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
                            }
                            
                            if (callType == 3 || callType == 7 || callType == 11)
                            {
                                [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
-                               //[self jsSuccessWithName:@"uexESurfingRtc.cbCallStatus" opId:0 dataType:0 strData:@"OK:INCOMING"];
                                
                                DAPIPView* dvItem = [[DAPIPView alloc] init];
                                self.dapiview = dvItem;
