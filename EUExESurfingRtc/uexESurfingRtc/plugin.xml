@@ -7,7 +7,6 @@
     <method name="login"></method>
         <method name="call"></method>
         <method name="acceptCall"></method>
-        <method name="rejectCall"></method>
          <method name="logout"></method>
          <method name="hangUp"></method>
          <method name="mute"></method>
