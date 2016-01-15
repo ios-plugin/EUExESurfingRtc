@@ -9,7 +9,8 @@
 /* Begin PBXBuildFile section */
 		420018781B0D8F5D009EB47B /* EUExESurfingRtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */; };
 		420018991B0D903D009EB47B /* DAPIPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4200187B1B0D903D009EB47B /* DAPIPView.m */; };
-		4200189A1B0D903D009EB47B /* libtyrtcsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4200187E1B0D903D009EB47B /* libtyrtcsdk.a */; };
+		EBB83AFD1C48E51F00B8BA80 /* MySingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = EBB83AFC1C48E51F00B8BA80 /* MySingleton.m */; };
+		EBB83B031C48E72000B8BA80 /* libtyrtcsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBB83B021C48E72000B8BA80 /* libtyrtcsdk.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,7 +31,6 @@
 		420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EUExESurfingRtc.m; sourceTree = "<group>"; };
 		4200187A1B0D903D009EB47B /* DAPIPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAPIPView.h; sourceTree = "<group>"; };
 		4200187B1B0D903D009EB47B /* DAPIPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAPIPView.m; sourceTree = "<group>"; };
-		4200187E1B0D903D009EB47B /* libtyrtcsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libtyrtcsdk.a; sourceTree = "<group>"; };
 		420018811B0D903D009EB47B /* NSAlert+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAlert+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
 		420018821B0D903D009EB47B /* NSData+MKBase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+MKBase64.h"; sourceTree = "<group>"; };
 		420018831B0D903D009EB47B /* NSDate+RFC1123.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+RFC1123.h"; sourceTree = "<group>"; };
@@ -38,19 +38,14 @@
 		420018851B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
 		420018861B0D903D009EB47B /* UIAlertView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
 		420018871B0D903D009EB47B /* UIImageView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018891B0D903D009EB47B /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
-		4200188A1B0D903D009EB47B /* MKNetworkEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkEngine.h; sourceTree = "<group>"; };
 		4200188B1B0D903D009EB47B /* MKNetworkKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkKit.h; sourceTree = "<group>"; };
-		4200188C1B0D903D009EB47B /* MKNetworkOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkOperation.h; sourceTree = "<group>"; };
 		4200188D1B0D903D009EB47B /* NSDictionary+RequestEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+RequestEncoding.h"; sourceTree = "<group>"; };
 		4200188E1B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018901B0D903D009EB47B /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		420018911B0D903D009EB47B /* tyrtchttpengine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tyrtchttpengine.h; sourceTree = "<group>"; };
 		420018921B0D903D009EB47B /* UIAlertView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
 		420018931B0D903D009EB47B /* sdkerrorcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdkerrorcode.h; sourceTree = "<group>"; };
 		420018941B0D903D009EB47B /* sdkkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdkkey.h; sourceTree = "<group>"; };
 		420018951B0D903D009EB47B /* sdkobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdkobj.h; sourceTree = "<group>"; };
-		420018981B0D903D009EB47B /* OpenUDID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenUDID.h; sourceTree = "<group>"; };
 		420018A61B0DA6B6009EB47B /* EUExBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUExBase.h; sourceTree = "<group>"; };
 		420018A71B0DA6B6009EB47B /* EUExBaseDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUExBaseDefine.h; sourceTree = "<group>"; };
 		420018A81B0DA6B6009EB47B /* EUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUtility.h; sourceTree = "<group>"; };
@@ -63,6 +58,13 @@
 		420018B01B0DA6EB009EB47B /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
 		420018B11B0DA6EB009EB47B /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
 		420018B21B0DA6EB009EB47B /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
+		EBB83AFB1C48E51F00B8BA80 /* MySingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MySingleton.h; sourceTree = "<group>"; };
+		EBB83AFC1C48E51F00B8BA80 /* MySingleton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MySingleton.m; sourceTree = "<group>"; };
+		EBB83AFE1C48E5F900B8BA80 /* JSONKitRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKitRTC.h; sourceTree = "<group>"; };
+		EBB83AFF1C48E61400B8BA80 /* MKNetworkEngineRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkEngineRTC.h; sourceTree = "<group>"; };
+		EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkOperationRTC.h; sourceTree = "<group>"; };
+		EBB83B011C48E62100B8BA80 /* ReachabilityRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReachabilityRTC.h; sourceTree = "<group>"; };
+		EBB83B021C48E72000B8BA80 /* libtyrtcsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtyrtcsdk.a; path = EUExESurfingRtc/soureCode/lib/libtyrtcsdk.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,7 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4200189A1B0D903D009EB47B /* libtyrtcsdk.a in Frameworks */,
+				EBB83B031C48E72000B8BA80 /* libtyrtcsdk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +82,7 @@
 		420018531B0D8F23009EB47B = {
 			isa = PBXGroup;
 			children = (
+				EBB83B021C48E72000B8BA80 /* libtyrtcsdk.a */,
 				4200185E1B0D8F23009EB47B /* EUExESurfingRtc */,
 				4200185D1B0D8F23009EB47B /* Products */,
 			);
@@ -96,6 +99,8 @@
 		4200185E1B0D8F23009EB47B /* EUExESurfingRtc */ = {
 			isa = PBXGroup;
 			children = (
+				EBB83AFB1C48E51F00B8BA80 /* MySingleton.h */,
+				EBB83AFC1C48E51F00B8BA80 /* MySingleton.m */,
 				420018761B0D8F5D009EB47B /* EUExESurfingRtc.h */,
 				420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */,
 				420018791B0D903D009EB47B /* soureCode */,
@@ -113,7 +118,6 @@
 				4200187B1B0D903D009EB47B /* DAPIPView.m */,
 				420018A91B0DA6EB009EB47B /* JSON */,
 				4200187C1B0D903D009EB47B /* inc */,
-				420018981B0D903D009EB47B /* OpenUDID.h */,
 			);
 			path = soureCode;
 			sourceTree = "<group>";
@@ -121,7 +125,6 @@
 		4200187C1B0D903D009EB47B /* inc */ = {
 			isa = PBXGroup;
 			children = (
-				4200187D1B0D903D009EB47B /* lib */,
 				4200187F1B0D903D009EB47B /* mknetwork */,
 				420018931B0D903D009EB47B /* sdkerrorcode.h */,
 				420018941B0D903D009EB47B /* sdkkey.h */,
@@ -130,22 +133,14 @@
 			path = inc;
 			sourceTree = "<group>";
 		};
-		4200187D1B0D903D009EB47B /* lib */ = {
-			isa = PBXGroup;
-			children = (
-				4200187E1B0D903D009EB47B /* libtyrtcsdk.a */,
-			);
-			path = lib;
-			sourceTree = "<group>";
-		};
 		4200187F1B0D903D009EB47B /* mknetwork */ = {
 			isa = PBXGroup;
 			children = (
+				EBB83AFF1C48E61400B8BA80 /* MKNetworkEngineRTC.h */,
+				EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */,
 				420018801B0D903D009EB47B /* Categories */,
 				420018881B0D903D009EB47B /* JSONKit */,
-				4200188A1B0D903D009EB47B /* MKNetworkEngine.h */,
 				4200188B1B0D903D009EB47B /* MKNetworkKit.h */,
-				4200188C1B0D903D009EB47B /* MKNetworkOperation.h */,
 				4200188D1B0D903D009EB47B /* NSDictionary+RequestEncoding.h */,
 				4200188E1B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */,
 				4200188F1B0D903D009EB47B /* Reachability */,
@@ -172,7 +167,7 @@
 		420018881B0D903D009EB47B /* JSONKit */ = {
 			isa = PBXGroup;
 			children = (
-				420018891B0D903D009EB47B /* JSONKit.h */,
+				EBB83AFE1C48E5F900B8BA80 /* JSONKitRTC.h */,
 			);
 			path = JSONKit;
 			sourceTree = "<group>";
@@ -180,7 +175,7 @@
 		4200188F1B0D903D009EB47B /* Reachability */ = {
 			isa = PBXGroup;
 			children = (
-				420018901B0D903D009EB47B /* Reachability.h */,
+				EBB83B011C48E62100B8BA80 /* ReachabilityRTC.h */,
 			);
 			path = Reachability;
 			sourceTree = "<group>";
@@ -258,6 +253,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				420018781B0D8F5D009EB47B /* EUExESurfingRtc.m in Sources */,
+				EBB83AFD1C48E51F00B8BA80 /* MySingleton.m in Sources */,
 				420018991B0D903D009EB47B /* DAPIPView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

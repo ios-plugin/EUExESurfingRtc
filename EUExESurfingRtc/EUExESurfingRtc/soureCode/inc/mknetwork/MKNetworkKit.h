@@ -75,10 +75,10 @@
 #import "Categories/NSAlert+MKNetworkKitAdditions.h"
 #endif
 
-#import "Reachability/Reachability.h"
+#import "Reachability/ReachabilityRTC.h"
 
-#import "MKNetworkOperation.h"
-#import "MKNetworkEngine.h"
+#import "MKNetworkOperationRTC.h"
+#import "MKNetworkEngineRTC.h"
 
 #define kMKNetworkEngineOperationCountChanged @"kMKNetworkEngineOperationCountChanged"
 #define MKNETWORKCACHE_DEFAULT_COST 10

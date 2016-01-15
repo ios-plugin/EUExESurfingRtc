@@ -1,19 +1,19 @@
-#import "MKNetworkEngine.h"
+#import "MKNetworkEngineRTC.h"
 
-@interface tyrtchttpengine : MKNetworkEngine
+@interface tyrtchttpengine : MKNetworkEngineRTC
 
 typedef void (^GetTokenOkBlock)(BOOL ok,NSDictionary* dic);
 typedef void (^GetAddressesOkBlock)(BOOL ok,NSDictionary* dic);
 typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
 
--(MKNetworkOperation*) getServerAddresses:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) getServerAddresses:(NSString*)httpMethod
                                    useSSL:(BOOL)useSSL
                                     appId:(NSString*)appId
                                    appKey:(NSString*)appKey
                         completionHandler:(RespOkBlock) completionBlock
                              errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) getAccountToken:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) getAccountToken:(NSString*)httpMethod
                                 useSSL:(BOOL)useSSL
                                  appId:(NSString*)appId
                                 appKey:(NSString*)appKey
@@ -26,7 +26,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                      completionHandler:(RespOkBlock) completionBlock
                           errorHandler:(MKNKErrorBlock) errorBlockr;
 
--(MKNetworkOperation*) getUserStatus:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) getUserStatus:(NSString*)httpMethod
                               useSSL:(BOOL)useSSL
                                appId:(NSString*)appId
                               appKey:(NSString*)appKey
@@ -36,7 +36,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                    completionHandler:(RespOkBlock) completionBlock
                         errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) GroupCall:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) GroupCall:(NSString*)httpMethod
                           useSSL:(BOOL)useSSL
                            appId:(NSString*)appId
                           appKey:(NSString*)appKey
@@ -52,11 +52,14 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                         cvMethod:(NSString*)gvcCBmethod
                        switchPic:(int)switchPicture
                            codec:(int)codec
+                     screenSplit:(int)screen
+                              lv:(int)lv
+                        initMode:(int)initMode
                            token:(NSString*)token
                completionHandler:(RespOkBlock) completionBlock
                     errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) getGroupMemeberList:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) getGroupMemeberList:(NSString*)httpMethod
                                     useSSL:(BOOL)useSSL
                                      appId:(NSString*)appId
                                     appKey:(NSString*)appKey
@@ -67,7 +70,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                          completionHandler:(RespOkBlock) completionBlock
                               errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) InvitedMembermanagement:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) InvitedMembermanagement:(NSString*)httpMethod
                                         useSSL:(BOOL)useSSL
                                          appId:(NSString*)appId
                                         appKey:(NSString*)appKey
@@ -80,7 +83,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                              completionHandler:(RespOkBlock) completionBlock
                                   errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) JoinedMembermanagement:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) JoinedMembermanagement:(NSString*)httpMethod
                                        useSSL:(BOOL)useSSL
                                         appId:(NSString*)appId
                                        appKey:(NSString*)appKey
@@ -94,7 +97,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                             completionHandler:(RespOkBlock) completionBlock
                                  errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) KickedMemberList:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) KickedMemberList:(NSString*)httpMethod
                                  useSSL:(BOOL)useSSL
                                   appId:(NSString*)appId
                                  appKey:(NSString*)appKey
@@ -107,7 +110,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                       completionHandler:(RespOkBlock) completionBlock
                            errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) CloseGroupCall:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) CloseGroupCall:(NSString*)httpMethod
                                useSSL:(BOOL)useSSL
                                 appId:(NSString*)appId
                                appKey:(NSString*)appKey
@@ -118,7 +121,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                     completionHandler:(RespOkBlock) completionBlock
                          errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) GrpvMicManagement:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) GrpvMicManagement:(NSString*)httpMethod
                                   useSSL:(BOOL)useSSL
                                    appId:(NSString*)appId
                                   appKey:(NSString*)appKey
@@ -130,20 +133,24 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                        completionHandler:(RespOkBlock) completionBlock
                             errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) GrpvVideoManagement:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) GrpvVideoManagement:(NSString*)httpMethod
                                     useSSL:(BOOL)useSSL
                                      appId:(NSString*)appId
                                     appKey:(NSString*)appKey
                                    creater:(NSString*)gvcCreater
                                createrType:(NSString*)gvcCreaterType
                                     callID:(NSString*)callID
-                               displayMode:(int)dismode
+                               memberToSet:(NSString*)mbToSet
+                            memberSetStyle:(int)mbSetStyle
+                              memberToShow:(NSString*)mbToShow
+                               screenSplit:(int)screen
+                                        lv:(int)lv
                             openrationList:(NSMutableArray*)openrationList
                                      token:(NSString*)token
                          completionHandler:(RespOkBlock) completionBlock
                               errorHandler:(MKNKErrorBlock) errorBlock;
 
--(MKNetworkOperation*) getGroupList:(NSString*)httpMethod
+-(MKNetworkOperationRTC*) getGroupList:(NSString*)httpMethod
                              useSSL:(BOOL)useSSL
                               appId:(NSString*)appId
                              appKey:(NSString*)appKey

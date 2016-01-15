@@ -28,13 +28,13 @@
 extern const float kFromCacheAnimationDuration;
 extern const float kFreshLoadAnimationDuration;
 
-@class MKNetworkEngine;
-@class MKNetworkOperation;
+@class MKNetworkEngineRTC;
+@class MKNetworkOperationRTC;
 
 @interface UIImageView (MKNetworkKitAdditions)
-+(void) setDefaultEngine:(MKNetworkEngine*) engine;
--(MKNetworkOperation*) setImageFromURL:(NSURL*) url;
--(MKNetworkOperation*) setImageFromURL:(NSURL*) url placeHolderImage:(UIImage*) image;
--(MKNetworkOperation*) setImageFromURL:(NSURL*) url placeHolderImage:(UIImage*) image animation:(BOOL) yesOrNo;
--(MKNetworkOperation*) setImageFromURL:(NSURL*) url placeHolderImage:(UIImage*) image usingEngine:(MKNetworkEngine*) imageCacheEngine animation:(BOOL) yesOrNo;
++(void) setDefaultEngine:(MKNetworkEngineRTC*) engine;
+-(MKNetworkOperationRTC*) setImageFromURL:(NSURL*) url;
+-(MKNetworkOperationRTC*) setImageFromURL:(NSURL*) url placeHolderImage:(UIImage*) image;
+-(MKNetworkOperationRTC*) setImageFromURL:(NSURL*) url placeHolderImage:(UIImage*) image animation:(BOOL) yesOrNo;
+-(MKNetworkOperationRTC*) setImageFromURL:(NSURL*) url placeHolderImage:(UIImage*) image usingEngine:(MKNetworkEngineRTC*) imageCacheEngine animation:(BOOL) yesOrNo;
 @end

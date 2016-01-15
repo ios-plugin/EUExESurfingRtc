@@ -61,6 +61,14 @@ void initCWDebugLog();
 }
 @end
 
+//设备信息
+@interface OpenUDIDRTC : NSObject {
+}
++ (NSString*) value;
++ (NSString*) valueWithError:(NSError**)error;
++ (void) setOptOut:(BOOL)optOutValue;
+@end
+
 typedef enum {
     UIDeviceFamilyiPhone,
     UIDeviceFamilyiPod,
@@ -112,6 +120,7 @@ typedef enum {
 @property(nonatomic,assign)id<SdkObjCallBackProtocol> Delegate;
 @property(nonatomic,copy)NSString*    TerminalType;
 @property(nonatomic,copy)NSString*    UDID;
++(NSString*)ECodeToStr:(int)code;
 /**
  *  对象初始化
  *
@@ -151,7 +160,7 @@ typedef enum {
 /**
  *  设置音频编解码
  *
- *  @param param   字典参数
+ *  @param param   编码参数
  *
  *  @return 错误码
  */
@@ -159,7 +168,7 @@ typedef enum {
 /**
  *  设置视频编解码
  *
- *  @param param   字典参数
+ *  @param param   编码参数
  *
  *  @return 错误码
  */
@@ -167,9 +176,9 @@ typedef enum {
 -(int)setVideoCodec:(NSNumber*)param;
 #endif
 /**
- *  设置视频属性
+ *  设置视频分辨率
  *
- *  @param param   字典参数
+ *  @param param   分辨率参数
  *
  *  @return 错误码
  */
@@ -183,7 +192,7 @@ typedef enum {
 /**
  *  应用切换到前台
  */
--(void)onAppEnterForeground;
+//-(void)onAppEnterForeground;
 /**
  *  网络切换
  */
@@ -195,7 +204,24 @@ typedef enum {
 
 @protocol AccObjCallBackProtocol <NSObject>
 /**
- *  呼叫到达通知
+ *  IM消息发送回调
+ *
+ *  @param param        上报参数
+ *
+ *  @return 错误码
+ */
+-(int)onSendIM:(int)status;
+/**
+ *  IM消息到达回调
+ *
+ *  @param param        上报参数
+ *  @param accObj       账户对象
+ *
+ *  @return 错误码
+ */
+-(int)onReceiveIM:(NSDictionary*)param withAccObj:(AccObj*)accObj;
+/**
+ *  呼叫到达回调
  *
  *  @param param        上报参数
  *  @param newCallObj   呼叫对象
@@ -233,7 +259,7 @@ typedef enum {
 -(int)onNotifyMessage:(NSDictionary*)param accObj:(AccObj*)accObj;
 #if (SDK_HAS_GROUP>0)
 /**
- *  多人呼叫到达通知
+ *  多人呼叫到达回调
  *
  *  @param param        上报参数
  *  @param newCallObj   呼叫对象
@@ -340,12 +366,20 @@ typedef enum {
  */
 -(int)getGroupList:(NSDictionary*)param;
 #endif
+/**
+ *  发送IM消息
+ *
+ *  @param param   消息参数
+ *
+ *  @return 错误码
+ */
+-(int)doSendIM:(NSDictionary*)param;
 @end
 
 
 @protocol CallObjCallBackProtocol <NSObject>
 /**
- *  呼叫事件通知
+ *  呼叫事件回调
  *
  *  @param type      呼叫回调类型
  *  @param code      上报信息
@@ -355,7 +389,7 @@ typedef enum {
  */
 -(int)onCallBack:(SDK_CALLBACK_TYPE)type code:(int)code callObj:(CallObj*)callObj;
 /**
- *  呼叫媒体建立事件通知
+ *  媒体建立事件回调
  *
  *  @param mediaType  媒体类型
  *  @param callObj    呼叫对象
@@ -364,7 +398,7 @@ typedef enum {
  */
 -(int)onCallMediaCreated:(int)mediaType callObj:(CallObj*)callObj;
 /**
- *  呼叫网络状态事件通知
+ *  网络状态回调
  *
  *  @param desc      上报信息
  *  @param callObj   呼叫对象
@@ -374,7 +408,7 @@ typedef enum {
 -(int)onNetworkStatus:(NSString*)desc callObj:(CallObj*)callObj;
 #if (SDK_HAS_GROUP>0)
 /**
- *  多人请求消息到达通知
+ *  多人请求消息回调
  *
  *  @param result   上报信息
  *  @param grpObj   呼叫对象
@@ -382,8 +416,6 @@ typedef enum {
  *  @return 错误码
  */
 -(int)onGroupResponse:(NSDictionary*)result grpObj:(CallObj*)grpObj;
-// 群组请求
-//-(void)onGroupRequest:(NSDictionary*)result grpObj:(CallObj*)grpObj;
 #endif
 @end
 
@@ -449,6 +481,7 @@ typedef enum {
  *  @return 错误码
  */
 -(int)doHangupCall;
+-(int)doReleaseCallResource;
 /**
  *  静音
  *
@@ -490,6 +523,18 @@ typedef enum {
  */
 -(int)doSetCallVideoWindow:(IOSDisplay*)remoteVideoWindow localVideoWindow:(void*)localVideoWindow;
 /**
+ *  开始视频录制
+ *
+ *  @return 错误码
+ */
+-(int)doStartRecording;
+/**
+ *  停止视频录制，视频保存在本地相册
+ *
+ *  @return 错误码
+ */
+-(int)doStopRecording;
+/**
  *  摄像头切换
  *
  *  @param cameraIndex   摄像头类型
@@ -497,6 +542,12 @@ typedef enum {
  *  @return 错误码
  */
 -(int)doSwitchCamera:(int)cameraIndex;
+/**
+ *  重新加载摄像头
+ *
+ *  @return 错误码
+ */
+-(int)doChangeView;
 /**
  *  隐藏本地视频
  *
@@ -516,23 +567,20 @@ typedef enum {
 /**
  *  截取远端视频
  *
- *  @param savePath       保存路径
- *  @param canOverWrite   是否覆盖
- *
  *  @return 错误码
  */
--(int)doSnapImage:(NSString*)savePath overWrite:(BOOL)canOverWrite;
+-(int)doSnapImage;
 #endif
 #if (SDK_HAS_GROUP>0)
 /**
- *  发起多人会话
+ *  多人会话请求
  *
- *  @param action   多人会话
+ *  @param action   多人会话请求类型
  *  @param param    会话参数
  *
  *  @return 错误码
  */
--(int)setGroupVoice:(int)action param:(NSDictionary*)param;
+-(int)groupCall:(int)action param:(NSDictionary*)param;
 #endif
 @end
 
