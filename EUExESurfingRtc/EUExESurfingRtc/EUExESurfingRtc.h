@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "MySingleton.h"
+#import "MySingletonRTC.h"
 #import "EUExBase.h"
 
 #define CALLINGVIEW_TAG 2000
@@ -16,6 +16,6 @@
 
 @interface EUExESurfingRtc : EUExBase
 
-@property (nonatomic,strong) MySingleton *mgr;
+@property (nonatomic,strong) MySingletonRTC *mgr;
 
 @end

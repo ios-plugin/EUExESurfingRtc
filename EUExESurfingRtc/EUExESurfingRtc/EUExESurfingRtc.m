@@ -27,7 +27,7 @@
 {
     self = [super initWithBrwView:eInBrwView];
     if (self) {
-        self.mgr=[MySingleton sharedInstance];
+        self.mgr=[MySingletonRTC sharedInstance];
         
 //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onRecvEvent:) name:@"NOTIFY_EVENT" object:nil];
         
