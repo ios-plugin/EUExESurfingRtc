@@ -7,11 +7,11 @@
     	<build>8:修改onGlobalStatus与cbCallStatus</build>
     	<build>7:修改login接口参数与Android不一致问题，增加后台长连接通知与网络切换检测</build>
         <build>6:增加设置appid和appkey回调</build>
-         <build>5:改为主函数回调</build>
-          <build>4:测试接收appid和appkey的方式</build>
-            <build>3:改变接收appid和appkey的方式</build>
-         <build>2:测试setappid接口</build>
-         <build>1:doNavigation参数默认传cloud2</build>
+        <build>5:改为主函数回调</build>
+        <build>4:测试接收appid和appkey的方式</build>
+        <build>3:改变接收appid和appkey的方式</build>
+        <build>2:测试setappid接口</build>
+        <build>1:doNavigation参数默认传cloud2</build>
        <build>0:天翼RTC插件</build>
 	</plugin>
 </uexplugins>
