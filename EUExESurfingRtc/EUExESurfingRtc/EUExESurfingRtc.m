@@ -161,11 +161,11 @@
         int jscallType = [[inArgument objectAtIndex:0] intValue];
         if(jscallType == 1)
             self.mgr.callTypes = AUDIO;
-        else if(jscallType == 3)
+        else if(jscallType == 2)
             self.mgr.callTypes = AUDIO_VIDEO;
-        else if(jscallType == 4)
+        else if(jscallType == 3)
             self.mgr.callTypes = AUDIO_VIDEO_RECV;
-        else if(jscallType == 5)
+        else if(jscallType == 4)
             self.mgr.callTypes = AUDIO_VIDEO_SEND;
         else
         {
@@ -256,11 +256,11 @@
         int jscallType = [[inArgument objectAtIndex:0] intValue];
         if(jscallType == 1)
             self.mgr.accepptType = AUDIO;
-        else if(jscallType == 3)
+        else if(jscallType == 2)
             self.mgr.accepptType = AUDIO_VIDEO;
-        else if(jscallType == 4)
+        else if(jscallType == 3)
             self.mgr.accepptType = AUDIO_VIDEO_RECV;
-        else if(jscallType == 5)
+        else if(jscallType == 4)
             self.mgr.accepptType = AUDIO_VIDEO_SEND;
         else
         {
