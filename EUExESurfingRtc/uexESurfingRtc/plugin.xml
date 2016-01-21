@@ -13,6 +13,7 @@
          <method name="loudSpeaker"></method>
          <method name="setVideoAttr"></method>
          <method name="takeRemotePicture"></method>
+         <method name="sendMessage"></method>
 
     </plugin>
 </uexplugins>

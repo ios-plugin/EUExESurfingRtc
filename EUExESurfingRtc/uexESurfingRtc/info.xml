@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin uexName="uexESurfingRtc" version="3.1.0" build ="10">
-    	<info>10:单例类加入后缀，防止冲突</info>
-    	<build>9:单例模式，回调返回root窗口</build>
-    	<build>8:修改onGlobalStatus与cbCallStatus</build>
-    	<build>7:修改login接口参数与Android不一致问题，增加后台长连接通知与网络切换检测</build>
+    <plugin uexName="uexESurfingRtc" version="3.0.11" build ="11">
+        <info>11:新增文本消息接口，修改call和acceptCall的calltype</info>
+        <build>10:单例类加入后缀，防止冲突</build>
+        <build>9:单例模式，回调返回root窗口</build>
+        <build>8:修改onGlobalStatus与cbCallStatus</build>
+        <build>7:修改login接口参数与Android不一致问题，增加后台长连接通知与网络切换检测</build>
         <build>6:增加设置appid和appkey回调</build>
          <build>5:改为主函数回调</build>
           <build>4:测试接收appid和appkey的方式</build>
@@ -12,5 +13,5 @@
          <build>2:测试setappid接口</build>
          <build>1:doNavigation参数默认传cloud2</build>
        <build>0:天翼RTC插件</build>
-	</plugin>
+    </plugin>
 </uexplugins>
