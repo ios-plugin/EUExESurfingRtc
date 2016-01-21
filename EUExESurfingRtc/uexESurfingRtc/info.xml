@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin uexName="uexESurfingRtc" version="3.1.0" build ="10">
-    	<info>10:单例类加入后缀，防止冲突</info>
+    <plugin uexName="uexESurfingRtc" version="3.0.11" build ="11">
+    	<info>11:新增文本消息接口，修改call和acceptCall的calltype</info>
+    	<build>10:单例类加入后缀，防止冲突</build>
     	<build>9:单例模式，回调返回root窗口</build>
     	<build>8:修改onGlobalStatus与cbCallStatus</build>
     	<build>7:修改login接口参数与Android不一致问题，增加后台长连接通知与网络切换检测</build>
