@@ -15,7 +15,7 @@
 #import "DAPIPView.h"
 
 #define APP_USER_AGENT      @"RTC_AppCan"
-#define APP_VERSION         @"V2.6.1_B20151230"
+#define APP_VERSION         @"V2.6.2_B20160205"
 
 
 @implementation EUExESurfingRtc
@@ -151,12 +151,13 @@
     [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"OK:LOGOUT" waitUntilDone:NO];
     [self.mgr.localVideoView removeFromSuperview];
     [self.mgr.remoteVideoView removeFromSuperview];
+    [self.mgr.dapiview removeFromSuperview];
 }
 
 //call；
 -(void)call:(NSMutableArray *)inArgument
 {
-    if ([inArgument isKindOfClass:[NSMutableArray class]] && [inArgument count] == 2){
+    if ([inArgument isKindOfClass:[NSMutableArray class]]/* && [inArgument count] == 3*/){
         
         int jscallType = [[inArgument objectAtIndex:0] intValue];
         if(jscallType == 1)
@@ -175,6 +176,13 @@
         
         int str =  [[inArgument objectAtIndex:1] intValue];
         self.mgr.callName = [NSString stringWithFormat:@"%d",str];
+        if(!self.mgr.callName || [self.mgr.callName isEqualToString:@""])
+            return;
+        
+        int str2 =  [[inArgument objectAtIndex:2] intValue];
+        NSString* callinfo = [NSString stringWithFormat:@"%d",str2];
+        if(!callinfo || [callinfo isEqualToString:@""])
+            callinfo = @"callinfo";
         
         if(!self.mgr.mSDKObj)
         {
@@ -186,8 +194,8 @@
         
         if (self.mgr.callTypes == AUDIO_VIDEO || self.mgr.callTypes == AUDIO_VIDEO_SEND || self.mgr.callTypes == AUDIO_VIDEO_RECV)
         {
-            [self showLocalView];
             [self showRemoteView];
+            [self showLocalView];
         }
 //        NSDictionary* params = [NSDictionary dictionaryWithObjectsAndKeys:@"", @"params",
 //                                [NSNumber numberWithInt:MSG_NEED_VIDEO],@"msgid",
@@ -220,7 +228,7 @@
                                      [NSNumber numberWithInt:self.mgr.callTypes],KEY_CALL_TYPE,
                                      [NSNumber numberWithInt:ACCTYPE_APP],KEY_CALL_REMOTE_ACC_TYPE,
                                      self.mgr.remoteTerminalType,KEY_CALL_REMOTE_TERMINAL_TYPE,
-                                     @"call",KEY_CALL_INFO,
+                                     callinfo,KEY_CALL_INFO,
                                      nil];
                 NSLog(@"发送信息=======>>>%@",dic);
                 int ret = [self.mgr.mCallObj doMakeCall:dic];
@@ -296,8 +304,8 @@
             }
             else
             {
-                [self showLocalView];
                 [self showRemoteView];
+                [self showLocalView];
                 [self.mgr setLog:@"视频已接听"];
                 [self.mgr.mCallObj doAcceptCall:[NSNumber numberWithInt:self.mgr.accepptType]];
             }
@@ -335,6 +343,7 @@
         [self.mgr setLog:@"呼叫已结束"];
         [self.mgr.localVideoView removeFromSuperview];
         [self.mgr.remoteVideoView removeFromSuperview];
+        [self.mgr.dapiview removeFromSuperview];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"call hangup" waitUntilDone:NO];
         
 //        return;
@@ -503,7 +512,7 @@
     {
         NSString* remoteuserID=  [inArgument objectAtIndex:0];
         SDK_ACCTYPE remoteAccType = ACCTYPE_APP;//(SDK_ACCTYPE)[paramDict integerValueForKey:@"remoteacctype"  defaultValue:10];
-        NSString* remoteTerminalType = @"Phone";// [paramDict objectForKey:@"remoteterminaltype"];
+        NSString* remoteTerminalType = @"Any";// [paramDict objectForKey:@"remoteterminaltype"];
         NSString* message = [inArgument objectAtIndex:1];
         if(!self.mgr.mSDKObj)
         {
@@ -537,9 +546,140 @@
 //    return self.mgr.currentTime;
 //}
 
+-(void)switchCamera:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        return;
+    }
+    if (nil == self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        return;
+    }
+    NSString* flag = [inArgument objectAtIndex:0];
+    int camera;
+    if ([flag isEqualToString:@"front"])
+        camera = 1;
+    else
+        camera = 0;
+    
+    if (self.mgr.mCallObj && self.mgr.mCallObj.CallMedia == MEDIA_TYPE_VIDEO)
+        [self.mgr.mCallObj doSwitchCamera:camera];//1为前置，0为后置
+    else if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        return;
+    }
+}
+
+-(void)rotateCamera:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        return;
+    }
+    if (nil == self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        return;
+    }
+    SDK_VIDEO_ROTATE mRotate = [[inArgument objectAtIndex:0] intValue];
+    if (mRotate > SDK_VIDEO_ROTATE_270)
+        mRotate = SDK_VIDEO_ROTATE_0;
+    else if(mRotate == SDK_VIDEO_ROTATE_90)
+        mRotate = SDK_VIDEO_ROTATE_270;
+    else if(mRotate == SDK_VIDEO_ROTATE_270)
+        mRotate = SDK_VIDEO_ROTATE_90;
+    
+    if (self.mgr.mCallObj && self.mgr.mCallObj.CallMedia == MEDIA_TYPE_VIDEO)
+    {
+        [self.mgr.mCallObj doRotateRemoteVideo:mRotate];
+    }
+    else if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        return;
+    }
+}
+
+//小窗口为本地
+-(void)createVideoView
+{
+    //只修改尺寸，不重新创建
+    NSInteger netFrameWidth = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_WIDTH"];
+    NSInteger netFrameHeight = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_HEIGHT"];
+    double rate = (double)netFrameWidth/(double)self.mgr.width;
+    NSInteger height = netFrameHeight/rate;
+    self.mgr.dapiview.frame = CGRectMake(self.mgr.x, self.mgr.y, self.mgr.width, height);
+    
+    //对端画面
+    self.mgr.remoteVideoView.frame = CGRectMake(self.mgr.x1, self.mgr.y1, self.mgr.width1, self.mgr.height1);
+    //本地画面
+    self.mgr.localVideoView.frame = self.mgr.dapiview.bounds;
+    self.mgr.localVideoView.backgroundColor = [UIColor blackColor];
+    self.mgr.localVideoView.center = CGPointMake(self.mgr.dapiview.bounds.size.width/2, self.mgr.dapiview.bounds.size.height/2);
+    [EUtility brwView:meBrwView bringSubviewToFront:self.mgr.dapiview];
+    
+    [self.mgr.mCallObj doChangeView];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6*NSEC_PER_SEC)),dispatch_get_main_queue(),^
+                   {
+                       [self.mgr.mCallObj doSetCallVideoWindow:self.mgr.remoteVideoView localVideoWindow:self.mgr.localVideoView];
+                   });
+}
+
+//小窗口为远端
+-(void)createVideoViewSwitch
+{
+    //只修改尺寸，不重新创建
+    NSInteger netFrameWidth = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_WIDTH"];
+    NSInteger netFrameHeight = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_HEIGHT"];
+    double rate = (double)netFrameWidth/(double)self.mgr.width1;
+    NSInteger height = netFrameHeight/rate;
+    self.mgr.dapiview.frame = CGRectMake(self.mgr.x1, self.mgr.y1, self.mgr.width1, height);
+    
+    //本地画面
+    self.mgr.localVideoView.frame = self.mgr.dapiview.bounds;
+    self.mgr.localVideoView.backgroundColor = [UIColor clearColor];
+    self.mgr.localVideoView.center = CGPointMake(self.mgr.dapiview.bounds.size.width/2, self.mgr.dapiview.bounds.size.height/2);
+    //对端画面
+    self.mgr.remoteVideoView.frame = CGRectMake(self.mgr.x, self.mgr.y, self.mgr.width, self.mgr.height);
+    [EUtility brwView:meBrwView bringSubviewToFront:self.mgr.remoteVideoView];
+    
+    [self.mgr.mCallObj doChangeView];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6*NSEC_PER_SEC)),dispatch_get_main_queue(),^
+                   {
+                       [self.mgr.mCallObj doSetCallVideoWindow:self.mgr.remoteVideoView localVideoWindow:self.mgr.localVideoView];
+                   });
+}
+
+-(void)switchView:(NSDictionary *)paramDict
+{
+    if (self.mgr.mCallObj && self.mgr.mCallObj.CallMedia == MEDIA_TYPE_VIDEO)
+    {
+        if(self.mgr.isViewSwitch)
+        {
+            self.mgr.isViewSwitch = NO;
+            [self createVideoView];//小窗口为本地
+        }
+        else
+        {
+            self.mgr.isViewSwitch = YES;
+            [self createVideoViewSwitch];//小窗口为远端
+        }
+    }
+    else if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        return;
+    }
+}
+
 - (void)showLocalView
 {
-    DAPIPView* dvItem = [[DAPIPView alloc] init];
+    DAPIPView* dvItem = [[DAPIPView alloc] init:CGRectMake(self.mgr.x, self.mgr.y, self.mgr.width, self.mgr.height)];
     self.mgr.dapiview = dvItem;
     
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
@@ -558,11 +698,11 @@
     }
     
     //本地窗口;
-    self.mgr.localVideoView = [[UIView alloc]initWithFrame:CGRectMake(self.mgr.x, self.mgr.y, self.mgr.width, self.mgr.height)];
-    NSLog(@"%@",NSStringFromCGRect(self.mgr.localVideoView.frame));
+    self.mgr.localVideoView = [[UIView alloc]initWithFrame:self.mgr.dapiview.bounds];
     self.mgr.localVideoView.backgroundColor = [UIColor whiteColor];
-    // vItem.center = CGPointMake(self.dapiview.bounds.size.width/2, self.dapiview.bounds.size.height/2);
-    [EUtility brwView: meBrwView  addSubview:self.mgr.localVideoView];
+    self.mgr.localVideoView.center = CGPointMake(self.mgr.dapiview.bounds.size.width/2, self.mgr.dapiview.bounds.size.height/2);
+    [self.mgr.dapiview addSubview:self.mgr.localVideoView];
+    [EUtility brwView: meBrwView  addSubview:self.mgr.dapiview];
     
     [dvItem release];
 }

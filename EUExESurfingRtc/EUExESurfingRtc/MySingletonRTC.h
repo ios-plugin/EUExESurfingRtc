@@ -69,6 +69,7 @@ typedef enum EVENTID
 @property (strong, nonatomic) CMMotionManager *mMotionManager;//自动旋转
 @property(nonatomic,assign)BOOL isGettingToken;//正在获取token时不能重复获取
 @property (nonatomic,assign) dispatch_queue_t callBackDispatchQueue;
+@property(nonatomic,assign)BOOL isViewSwitch;
 
 + (instancetype)sharedInstance;
 - (void)setLog:(NSString*)log;

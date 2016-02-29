@@ -211,6 +211,7 @@ typedef enum {
  *  @return 错误码
  */
 -(int)onSendIM:(int)status;
+//-(int)onPushMessage:(NSDictionary*)param;
 /**
  *  IM消息到达回调
  *

@@ -12,7 +12,6 @@
 {
     UIImageView *_frameView;
     UIImageView *_displayView;
-    UIButton    *_hideActionButton;
 }
 
 - (CGPoint)closestCornerUnit;
@@ -33,9 +32,9 @@
     [super dealloc];
 }
 
-- (id)init
+- (id)init:(CGRect)frame
 {
-    self = [self initWithFrame:[self boundsFromDevice]];
+    self = [self initWithFrame:frame];
     if (self)
     {
         // Initialization code
@@ -45,6 +44,13 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
+    NSInteger netFrameWidth = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_WIDTH"];
+    NSInteger netFrameHeight = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_HEIGHT"];
+    
+    double rate = (double)netFrameWidth/(double)frame.size.width;
+    NSInteger height = netFrameHeight/rate;
+    frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, height);
+    
     self = [super initWithFrame:frame];
     if (self)
     {
@@ -55,48 +61,6 @@
         
         _displayView = [[UIImageView alloc] init];
         _displayView.frame = super.bounds;
-         NSLog(@"%@",NSStringFromCGRect(_displayView.frame));
-        _displayView.clipsToBounds = YES;
-        _displayView.backgroundColor = [UIColor grayColor];
-        _displayView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | 
-                                         UIViewAutoresizingFlexibleHeight);
-        [super addSubview:_displayView];
-        
-        _frameView = [[UIImageView alloc] init];
-        _frameView.frame = CGRectMake(-[self frameInsetFromDevice],
-                                      -[self frameInsetFromDevice],
-                                      _displayView.bounds.size.width + [self frameInsetFromDevice] * 2.0f,
-                                      _displayView.bounds.size.height + [self frameInsetFromDevice] * 2.0f);
-        NSLog(@"%@",NSStringFromCGRect(_frameView.frame));
-        _frameView.backgroundColor = [UIColor clearColor];
-        _frameView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | 
-                                       UIViewAutoresizingFlexibleHeight);
-        [super addSubview:_frameView];
-        
-        self.multipleTouchEnabled = NO;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(orientationDidChange)
-                                                     name:UIDeviceOrientationDidChangeNotification
-                                                   object:nil];
-    }
-    return self;
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-    self = [super initWithCoder:aDecoder];
-    if (self)
-    {
-        // Initialization code
-        _borderInsets = UIEdgeInsetsMake(1.0f,      // top
-                                         1.0f,      // left
-                                         1.0f,      // bottom
-                                         1.0f);     // right
-        
-        _displayView = [[UIImageView alloc] init];
-        _displayView.frame = super.bounds;
-        NSLog(@"bbbb>>>>>>>>>%@",NSStringFromCGRect(_displayView.frame));
         _displayView.clipsToBounds = YES;
         _displayView.backgroundColor = [UIColor grayColor];
         _displayView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | 
@@ -115,44 +79,44 @@
         
         self.multipleTouchEnabled = NO;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(orientationDidChange)
-                                                     name:UIDeviceOrientationDidChangeNotification
-                                                   object:nil];
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(orientationDidChange)
+//                                                     name:UIDeviceOrientationDidChangeNotification
+//                                                   object:nil];
     }
     return self;
 }
 
-#pragma mark - Touch Methods
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [super touchesMoved:touches withEvent:event];
-    UITouch *touch = [touches anyObject];
-    
-    CGPoint fromLocation = [touch previousLocationInView:self];
-    CGPoint toLocation = [touch locationInView:self];
-    CGPoint changeLocation = CGPointMake(toLocation.x - fromLocation.x,
-                                         toLocation.y - fromLocation.y);
-    
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:0.2f];
-    super.center = CGPointMake(self.center.x + changeLocation.x,
-                              self.center.y + changeLocation.y);
-    [UIView commitAnimations];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [super touchesEnded:touches withEvent:event];
-    [self moveToClosestCornerAnimated:YES];
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [super touchesCancelled:touches withEvent:event];
-    [self moveToClosestCornerAnimated:YES];
-}
+//#pragma mark - Touch Methods
+//
+//- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    [super touchesMoved:touches withEvent:event];
+//    UITouch *touch = [touches anyObject];
+//    
+//    CGPoint fromLocation = [touch previousLocationInView:self];
+//    CGPoint toLocation = [touch locationInView:self];
+//    CGPoint changeLocation = CGPointMake(toLocation.x - fromLocation.x,
+//                                         toLocation.y - fromLocation.y);
+//    
+//    [UIView beginAnimations:nil context:nil];
+//    [UIView setAnimationDuration:0.2f];
+//    super.center = CGPointMake(self.center.x + changeLocation.x,
+//                              self.center.y + changeLocation.y);
+//    [UIView commitAnimations];
+//}
+//
+//- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    [super touchesEnded:touches withEvent:event];
+//    [self moveToClosestCornerAnimated:YES];
+//}
+//
+//- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    [super touchesCancelled:touches withEvent:event];
+//    [self moveToClosestCornerAnimated:YES];
+//}
 
 #pragma mark - Math
 
@@ -190,6 +154,7 @@
                       height);
     
     //这是原始大小,但一般情况下是不能这样用的,有可能很大,所以要有比例
+    //return CGRectMake(0.0f,0.0f,netFrameWidth,netFrameHeight);
 }
 
 #pragma mark - Public Commands
@@ -330,48 +295,38 @@
     [_displayView addSubview:view];
 }
 
-//- (void)setFrame:(CGRect)frame
-//{
-//    [super setFrame:frame];
-//    [self moveToClosestCornerAnimated:YES];
-//}
-//
-//- (void)setBounds:(CGRect)bounds
-//{
-//    [super setBounds:bounds];
-//    [self moveToClosestCornerAnimated:YES];
-//}
-//
-//- (void)setCenter:(CGPoint)center
-//{
-//    
-//}
-//
-//- (void)setAutoresizingMask:(UIViewAutoresizing)autoresizingMask
-//{
-//    
-//}
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    //[self moveToClosestCornerAnimated:YES];
+}
+
+- (void)setBounds:(CGRect)bounds
+{
+    [super setBounds:bounds];
+    //[self moveToClosestCornerAnimated:YES];
+}
 
 - (void)didMoveToSuperview
 {
     [super didMoveToSuperview];
-    [self moveToBottomRightAnimated:NO];
-    [self orientationDidChange];
+    //[self moveToBottomRightAnimated:NO];
+    //[self orientationDidChange];
 }
 
 - (void)didMoveToWindow
 {
     [super didMoveToWindow];
-    [self moveToBottomRightAnimated:NO];
-    [self orientationDidChange];
+    //[self moveToBottomRightAnimated:NO];
+    //[self orientationDidChange];
 }
 
 #pragma mark - Property Methods
 
-//- (void)setBorderInsets:(UIEdgeInsets)borderInsets
-//{
-//    _borderInsets = borderInsets;
-//    [self moveToClosestCornerAnimated:NO];
-//}
+- (void)setBorderInsets:(UIEdgeInsets)borderInsets
+{
+    _borderInsets = borderInsets;
+    //[self moveToClosestCornerAnimated:NO];
+}
 
 @end
