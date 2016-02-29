@@ -40,8 +40,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                           useSSL:(BOOL)useSSL
                            appId:(NSString*)appId
                           appKey:(NSString*)appKey
-                         creater:(NSString*)gvcCreater
-                     createrType:(NSString*)gvcCreaterType
+                         creator:(NSString*)gvcCreator
+                     creatorType:(NSString*)gvcCreatorType
                             type:(int)gvcType
                             name:(NSString*)gvcName
                           maxMem:(int)gvcMaxmem
@@ -63,8 +63,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                     useSSL:(BOOL)useSSL
                                      appId:(NSString*)appId
                                     appKey:(NSString*)appKey
-                                   creater:(NSString*)gvcCreater
-                               createrType:(NSString*)gvcCreaterType
+                                   creator:(NSString*)gvcCreator
+                               creatorType:(NSString*)gvcCreatorType
                                     callID:(NSString*)callID
                                      token:(NSString*)token
                          completionHandler:(RespOkBlock) completionBlock
@@ -74,8 +74,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                         useSSL:(BOOL)useSSL
                                          appId:(NSString*)appId
                                         appKey:(NSString*)appKey
-                                       creater:(NSString*)gvcCreater
-                                   createrType:(NSString*)gvcCreaterType
+                                       creator:(NSString*)gvcCreator
+                                   creatorType:(NSString*)gvcCreatorType
                                         callID:(NSString*)callID
                                    inviteeList:(NSMutableArray*)inviteeList
                                           mode:(int)mode
@@ -87,8 +87,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                        useSSL:(BOOL)useSSL
                                         appId:(NSString*)appId
                                        appKey:(NSString*)appKey
-                                      creater:(NSString*)gvcCreater
-                                  createrType:(NSString*)gvcCreaterType
+                                      creator:(NSString*)gvcCreator
+                                  creatorType:(NSString*)gvcCreatorType
                                        callID:(NSString*)callID
                                   inviteeList:(NSMutableArray*)inviteeList
                                          mode:(int)mode
@@ -101,8 +101,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                  useSSL:(BOOL)useSSL
                                   appId:(NSString*)appId
                                  appKey:(NSString*)appKey
-                                creater:(NSString*)gvcCreater
-                            createrType:(NSString*)gvcCreaterType
+                                creator:(NSString*)gvcCreator
+                            creatorType:(NSString*)gvcCreatorType
                                  callID:(NSString*)callID
                              kickedList:(NSMutableArray*)kickedList
                          replacerMember:(NSString*)replacerMember
@@ -114,8 +114,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                useSSL:(BOOL)useSSL
                                 appId:(NSString*)appId
                                appKey:(NSString*)appKey
-                              creater:(NSString*)gvcCreater
-                          createrType:(NSString*)gvcCreaterType
+                              creator:(NSString*)gvcCreator
+                          creatorType:(NSString*)gvcCreatorType
                                callID:(NSString*)callID
                                 token:(NSString*)token
                     completionHandler:(RespOkBlock) completionBlock
@@ -125,8 +125,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                   useSSL:(BOOL)useSSL
                                    appId:(NSString*)appId
                                   appKey:(NSString*)appKey
-                                 creater:(NSString*)gvcCreater
-                             createrType:(NSString*)gvcCreaterType
+                                 creator:(NSString*)gvcCreator
+                             creatorType:(NSString*)gvcCreatorType
                                   callID:(NSString*)callID
                           openrationList:(NSMutableArray*)openrationList
                                    token:(NSString*)token
@@ -137,8 +137,8 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                     useSSL:(BOOL)useSSL
                                      appId:(NSString*)appId
                                     appKey:(NSString*)appKey
-                                   creater:(NSString*)gvcCreater
-                               createrType:(NSString*)gvcCreaterType
+                                   creator:(NSString*)gvcCreator
+                               creatorType:(NSString*)gvcCreatorType
                                     callID:(NSString*)callID
                                memberToSet:(NSString*)mbToSet
                             memberSetStyle:(int)mbSetStyle
@@ -154,10 +154,35 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                              useSSL:(BOOL)useSSL
                               appId:(NSString*)appId
                              appKey:(NSString*)appKey
-                            creater:(NSString*)gvcCreater
-                        createrType:(NSString*)gvcCreaterType
+                            creator:(NSString*)gvcCreator
+                        creatorType:(NSString*)gvcCreatorType
                              callID:(NSString*)callID
                               token:(NSString*)token
                   completionHandler:(RespOkBlock) completionBlock
                        errorHandler:(MKNKErrorBlock) errorBlock;
+
+//-(MKNetworkOperationRTC*) pushMessage:(NSString*)httpMethod
+//                                useSSL:(BOOL)useSSL
+//                                 appId:(NSString*)appId
+//                                appKey:(NSString*)appKey
+//                               from:(NSString*)from
+//                               sender:(NSString*)sender
+//                terminalType:(NSString*)terminalType
+//                           toList:(NSString*)toList
+//                                msg:(NSString*)msg
+//                                 mode:(int)mode
+//                                  flag:(int)flag
+//                            recepient:(int)recepient
+//                     completionHandler:(RespOkBlock) completionBlock
+//                          errorHandler:(MKNKErrorBlock) errorBlock;
+//
+//-(MKNetworkOperationRTC*) pushStatusQuery:(NSString*)httpMethod
+//                               useSSL:(BOOL)useSSL
+//                                appId:(NSString*)appId
+//                               appKey:(NSString*)appKey
+//                                 msgID:(NSString*)msgID
+//                                    accId:(NSString*)accId
+//                    terminalType:(NSString*)terminalType
+//            completionHandler:(RespOkBlock) completionBlock
+//                         errorHandler:(MKNKErrorBlock) errorBlock;
 @end

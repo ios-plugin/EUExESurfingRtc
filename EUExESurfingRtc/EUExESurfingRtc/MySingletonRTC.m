@@ -160,7 +160,7 @@
             NSMutableDictionary *newResult = [NSMutableDictionary dictionaryWithObjectsAndKeys:nil];
             [newResult setObject:self.mToken forKey:KEY_CAPABILITYTOKEN];
             [newResult setObject:self.mAccountID forKey:KEY_RTCACCOUNTID];//形如"账号类型-账号~appid~终端类型@chinartc.com"
-            //[newResult setObject:[NSNumber numberWithDouble:2] forKey:KEY_ACC_SRTP];//若与浏览器互通则打开
+            [newResult setObject:[NSNumber numberWithDouble:2] forKey:KEY_ACC_SRTP];//若与浏览器互通则打开
             [self.mAccObj doAccRegister:newResult];
         }
     }
@@ -399,6 +399,7 @@
         }
         [self.localVideoView removeFromSuperview];
         [self.remoteVideoView removeFromSuperview];
+        [self.dapiview removeFromSuperview];
     }
 }
 
@@ -509,7 +510,7 @@
         NSMutableDictionary *newResult = [NSMutableDictionary dictionaryWithObjectsAndKeys:nil];
         [newResult setObject:self.mToken forKey:KEY_CAPABILITYTOKEN];
         [newResult setObject:self.mAccountID forKey:KEY_RTCACCOUNTID];//形如"账号类型-账号~appid~终端类型@chinartc.com"
-        //[newResult setObject:[NSNumber numberWithDouble:2] forKey:KEY_ACC_SRTP];//若与浏览器互通则打开
+        [newResult setObject:[NSNumber numberWithDouble:2] forKey:KEY_ACC_SRTP];//若与浏览器互通则打开
         [self.mAccObj doAccRegister:newResult];
         return EC_OK;
     }
@@ -734,6 +735,7 @@
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=200"] waitUntilDone:NO];
         [self.localVideoView removeFromSuperview];
         [self.remoteVideoView removeFromSuperview];
+        [self.dapiview removeFromSuperview];
         if (self.mCallObj)
         {
             [self.mCallObj release];
@@ -747,6 +749,7 @@
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=%d",code] waitUntilDone:NO];
         [self.localVideoView removeFromSuperview];
         [self.remoteVideoView removeFromSuperview];
+        [self.dapiview removeFromSuperview];
         if (self.mCallObj)
         {
             [self.mCallObj release];
