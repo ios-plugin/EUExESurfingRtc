@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		420018781B0D8F5D009EB47B /* EUExESurfingRtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */; };
 		420018991B0D903D009EB47B /* DAPIPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4200187B1B0D903D009EB47B /* DAPIPView.m */; };
-		EBB83AFD1C48E51F00B8BA80 /* MySingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = EBB83AFC1C48E51F00B8BA80 /* MySingleton.m */; };
+		EB2C363B1C507C5F009C523A /* MySingletonRTC.m in Sources */ = {isa = PBXBuildFile; fileRef = EB2C363A1C507C5F009C523A /* MySingletonRTC.m */; };
 		EBB83B031C48E72000B8BA80 /* libtyrtcsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBB83B021C48E72000B8BA80 /* libtyrtcsdk.a */; };
 /* End PBXBuildFile section */
 
@@ -58,8 +58,8 @@
 		420018B01B0DA6EB009EB47B /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
 		420018B11B0DA6EB009EB47B /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
 		420018B21B0DA6EB009EB47B /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
-		EBB83AFB1C48E51F00B8BA80 /* MySingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MySingleton.h; sourceTree = "<group>"; };
-		EBB83AFC1C48E51F00B8BA80 /* MySingleton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MySingleton.m; sourceTree = "<group>"; };
+		EB2C36391C507C5F009C523A /* MySingletonRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MySingletonRTC.h; sourceTree = "<group>"; };
+		EB2C363A1C507C5F009C523A /* MySingletonRTC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MySingletonRTC.m; sourceTree = "<group>"; };
 		EBB83AFE1C48E5F900B8BA80 /* JSONKitRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKitRTC.h; sourceTree = "<group>"; };
 		EBB83AFF1C48E61400B8BA80 /* MKNetworkEngineRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkEngineRTC.h; sourceTree = "<group>"; };
 		EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkOperationRTC.h; sourceTree = "<group>"; };
@@ -99,8 +99,8 @@
 		4200185E1B0D8F23009EB47B /* EUExESurfingRtc */ = {
 			isa = PBXGroup;
 			children = (
-				EBB83AFB1C48E51F00B8BA80 /* MySingleton.h */,
-				EBB83AFC1C48E51F00B8BA80 /* MySingleton.m */,
+				EB2C36391C507C5F009C523A /* MySingletonRTC.h */,
+				EB2C363A1C507C5F009C523A /* MySingletonRTC.m */,
 				420018761B0D8F5D009EB47B /* EUExESurfingRtc.h */,
 				420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */,
 				420018791B0D903D009EB47B /* soureCode */,
@@ -253,7 +253,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				420018781B0D8F5D009EB47B /* EUExESurfingRtc.m in Sources */,
-				EBB83AFD1C48E51F00B8BA80 /* MySingleton.m in Sources */,
+				EB2C363B1C507C5F009C523A /* MySingletonRTC.m in Sources */,
 				420018991B0D903D009EB47B /* DAPIPView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -350,6 +350,7 @@
 			buildSettings = {
 				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = NO;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
+				ENABLE_BITCODE = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc/lib",
@@ -366,6 +367,7 @@
 			buildSettings = {
 				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = NO;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
+				ENABLE_BITCODE = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc/lib",
