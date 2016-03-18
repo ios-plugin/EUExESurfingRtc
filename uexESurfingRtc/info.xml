@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin uexName="uexESurfingRtc" version="3.0.12" build ="12">
-    	<info>12:新增切换和旋转摄像头、交换窗口接口，call接口增加callInfo参数</info>
+    <plugin uexName="uexESurfingRtc" version="3.0.13" build ="13">
+    	<info>13:优化视频窗口大小</info>
+    		<build>12:新增切换和旋转摄像头、交换窗口接口，call接口增加callInfo参数</build>
         <build>11:新增文本消息接口，修改call和acceptCall的calltype</build>
         <build>10:单例类加入后缀，防止冲突</build>
         <build>9:单例模式，回调返回root窗口</build>
