@@ -15,7 +15,7 @@
 #import "DAPIPView.h"
 
 #define APP_USER_AGENT      @"RTC_AppCan"
-#define APP_VERSION         @"V2.6.2_B20160205"
+#define APP_VERSION         @"V2.6.3_B20160304"
 
 
 @implementation EUExESurfingRtc
@@ -611,9 +611,9 @@
     //只修改尺寸，不重新创建
     NSInteger netFrameWidth = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_WIDTH"];
     NSInteger netFrameHeight = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_HEIGHT"];
-    double rate = (double)netFrameWidth/(double)self.mgr.width;
-    NSInteger height = netFrameHeight/rate;
-    self.mgr.dapiview.frame = CGRectMake(self.mgr.x, self.mgr.y, self.mgr.width, height);
+    double rate = (double)netFrameHeight/(double)self.mgr.height;//以长边为基准设置全屏，保持分辨率宽高比
+    NSInteger width = netFrameWidth/rate;
+    self.mgr.dapiview.frame = CGRectMake(self.mgr.x, self.mgr.y, width, self.mgr.height);
     
     //对端画面
     self.mgr.remoteVideoView.frame = CGRectMake(self.mgr.x1, self.mgr.y1, self.mgr.width1, self.mgr.height1);
@@ -636,16 +636,18 @@
     //只修改尺寸，不重新创建
     NSInteger netFrameWidth = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_WIDTH"];
     NSInteger netFrameHeight = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_HEIGHT"];
-    double rate = (double)netFrameWidth/(double)self.mgr.width1;
-    NSInteger height = netFrameHeight/rate;
-    self.mgr.dapiview.frame = CGRectMake(self.mgr.x1, self.mgr.y1, self.mgr.width1, height);
+    double rate1 = (double)netFrameHeight/(double)self.mgr.height1;//以长边为基准设置全屏，保持分辨率宽高比
+    NSInteger width1 = netFrameWidth/rate1;
+    self.mgr.dapiview.frame = CGRectMake(self.mgr.x1, self.mgr.y1, width1, self.mgr.height1);
     
     //本地画面
     self.mgr.localVideoView.frame = self.mgr.dapiview.bounds;
     self.mgr.localVideoView.backgroundColor = [UIColor clearColor];
     self.mgr.localVideoView.center = CGPointMake(self.mgr.dapiview.bounds.size.width/2, self.mgr.dapiview.bounds.size.height/2);
     //对端画面
-    self.mgr.remoteVideoView.frame = CGRectMake(self.mgr.x, self.mgr.y, self.mgr.width, self.mgr.height);
+    double rate = (double)netFrameHeight/(double)self.mgr.height;//以长边为基准设置全屏，保持分辨率宽高比
+    NSInteger width = netFrameWidth/rate;
+    self.mgr.remoteVideoView.frame = CGRectMake(self.mgr.x, self.mgr.y, width, self.mgr.height);
     [EUtility brwView:meBrwView bringSubviewToFront:self.mgr.remoteVideoView];
     
     [self.mgr.mCallObj doChangeView];

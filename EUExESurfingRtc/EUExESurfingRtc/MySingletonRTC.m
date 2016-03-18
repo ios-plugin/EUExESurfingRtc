@@ -743,7 +743,7 @@
         }
         [self setCallIncomingFlag:NO];
     }
-    else  if (type == SDK_CALLBACK_FAILED)
+    else  if (type == SDK_CALLBACK_FAILED || type == SDK_CALLBACK_CANCELED)
     {
         [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=%d",code] waitUntilDone:NO];

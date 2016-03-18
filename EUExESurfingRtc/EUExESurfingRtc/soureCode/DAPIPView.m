@@ -47,9 +47,9 @@
     NSInteger netFrameWidth = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_WIDTH"];
     NSInteger netFrameHeight = [[NSUserDefaults standardUserDefaults]integerForKey:@"VIDEO_CAPTURE_NET_FRAME_HEIGHT"];
     
-    double rate = (double)netFrameWidth/(double)frame.size.width;
-    NSInteger height = netFrameHeight/rate;
-    frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, height);
+    double rate = (double)netFrameHeight/(double)frame.size.height;//以长边为基准设置全屏，保持分辨率宽高比
+    NSInteger width = netFrameWidth/rate;
+    frame = CGRectMake(frame.origin.x, frame.origin.y, width, frame.size.height);
     
     self = [super initWithFrame:frame];
     if (self)
