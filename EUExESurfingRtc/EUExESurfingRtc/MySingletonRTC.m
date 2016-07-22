@@ -29,7 +29,6 @@
         self.accType = ACCTYPE_APP;
         self.terminalType = TERMINAL_TYPE_PHONE;
         [self.terminalType retain];
-        
         self.remoteAccType = ACCTYPE_APP;
         self.remoteTerminalType = TERMINAL_TYPE_ANY;
         [self.remoteTerminalType retain];
@@ -37,11 +36,17 @@
         self.mMotionManager = [[CMMotionManager alloc]init];
         self.isGettingToken = NO;
         self.firstCheckNetwork = YES;
-        
-        initCWDebugLog();
         self.callBackDispatchQueue=dispatch_queue_create("gcd.uexESurfingRtcCallBackDispatchQueue",NULL);
-        
         [self checkNetWorkReachability];//检测网络切换
+        
+//        NSString* file = [[NSBundle mainBundle] pathForResource:@"AppCanPlugin-Info" ofType:@"plist"];
+//        NSMutableDictionary* dict = [[NSMutableDictionary alloc] initWithContentsOfFile:file];
+        NSString* islog = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"enablelog"];
+        self.notification = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"notification"];
+        
+        if([islog isEqualToString:@"1"])
+            initCWDebugLog();
+        
         
         //注册本地推送
         if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]&&[[[UIDevice currentDevice]systemVersion]floatValue]>=8.0)
@@ -57,6 +62,11 @@
     
     return self;
 }
+
+//-(void)onAccepted:(NSString*)senser
+//{
+//    [[NSNotificationCenter defaultCenter]  postNotificationName:@"ACCEPTED_EVENT" object:nil];
+//}
 
 -(void)cbLogStatus:(NSString*)senser{
     //[self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:senser];
@@ -115,7 +125,6 @@
     }
     
     signal(SIGPIPE, SIG_IGN);
-    self.mLogIndex = 0;
     self.mSDKObj = [[SdkObj alloc]init];//创建sdkobj指针
     
     [self.mSDKObj setSdkAgent:APP_USER_AGENT terminalType:TERMINAL_TYPE_PHONE UDID:[OpenUDIDRTC value] appID:self.appid appKey:self.appkey];
@@ -192,7 +201,6 @@
     {
         [self.mSDKObj release];
         self.mSDKObj = nil;
-        self.mLogIndex = 0;
         CWLogDebug(@"release完毕");
     }
 }
@@ -214,7 +222,6 @@
     NSLog(@"++++==>>>%@",strs);
     //[self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:1 strData:strs];
     // [[NSUserDefaults standardUserDefaults]setObject:str forKey:[NSString stringWithFormat:@"ViewLog%d",mLogIndex]];
-    self.mLogIndex++;
 }
 
 -(NSInteger)calcRotation:(double)xy z:(double)z
@@ -397,9 +404,24 @@
             [self.mCallObj release];
             self.mCallObj = nil;
         }
-        [self.localVideoView removeFromSuperview];
-        [self.remoteVideoView removeFromSuperview];
-        [self.dapiview removeFromSuperview];
+        if(self.localVideoView)
+        {
+            [self.localVideoView removeFromSuperview];
+            [self.localVideoView release];
+            self.localVideoView = nil;
+        }
+        if(self.remoteVideoView)
+        {
+            [self.remoteVideoView removeFromSuperview];
+            [self.remoteVideoView release];
+            self.remoteVideoView = nil;
+        }
+        if(self.dapiview)
+        {
+            [self.dapiview removeFromSuperview];
+//            [self.dapiview release];
+//            self.dapiview = nil;
+        }
     }
 }
 
@@ -565,7 +587,6 @@
         //            {
         //                [self.mSDKObj release];
         //                self.mSDKObj = nil;
-        //                self.mLogIndex = 0;
         //                [self setLog:@"release完毕"];
         //            }
         //            [self.localVideoView removeFromSuperview];
@@ -648,12 +669,18 @@
 //在这里增加来电后台通知或前台弹呼叫接听页面
 -(int)onCallIncoming:(NSDictionary*)param withNewCallObj:(CallObj*)newCallObj accObj:(AccObj*)accObj
 {
-    self.mCallObj = newCallObj;
-    [self.mCallObj setDelegate:self];
+    if(newCallObj)
+    {
+        self.mCallObj = newCallObj;
+        [self.mCallObj setDelegate:self];
+    }
+    
     int callType = [[param objectForKey:KEY_CALL_TYPE]intValue];
     NSLog(@"%d",callType);
     NSString* uri = [param objectForKey:KEY_CALLER];
     NSString* ci = [param objectForKey:KEY_CALL_INFO];
+    if(!ci)
+        ci = @"";
     
     const char* cacc = [uri UTF8String];
     int strindex1=0,strindex2=0;
@@ -694,16 +721,32 @@
     [mutStr replaceOccurrencesOfString:@"\\" withString:@"" options:NSLiteralSearch range:range3];
     //    [jsonString stringByReplacingOccurrencesOfString:@"\\n" withString:@""];
     //    [jsonString stringByReplacingOccurrencesOfString:@"\\" withString:@""];
-    NSString* str = [NSString stringWithFormat:@"DeviceListener:onNewCall,call=%@", mutStr];
-    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:str waitUntilDone:NO];
+    
+    NSString* str = nil;
+    if(newCallObj)
+    {
+        str = [NSString stringWithFormat:@"DeviceListener:onNewCall,call=%@", mutStr];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:str waitUntilDone:NO];
+    }
+    else
+    {
+        str = [NSString stringWithFormat:@"DeviceListener:rejectIncomingCall call=%@", mutStr];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:str waitUntilDone:NO];
+        return 0;
+    }
+    
     [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
     if ([self isBackground])
     {
         [self setCallIncomingFlag:YES];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithInt:callType] forKey:KEY_CALL_TYPE];
         [[NSUserDefaults standardUserDefaults]setObject:uri     forKey:KEY_CALLER];
-        makeNotification(@"接听",[NSString stringWithFormat:@"来电:%@",accNum],UILocalNotificationDefaultSoundName,YES);
-        [self setLog:[NSString stringWithFormat:@"来电:%@",accNum]];
+        
+        CWLogDebug(@"self.notification = %@",self.notification);
+        if([self.notification isEqualToString:@"callInfo"])
+            makeNotification(@"接听",[NSString stringWithFormat:@"来电:%@",ci],UILocalNotificationDefaultSoundName,YES);
+        else
+            makeNotification(@"接听",[NSString stringWithFormat:@"来电:%@",accNum],UILocalNotificationDefaultSoundName,YES);
         return 0;
     }
 //    if (callType == AUDIO_VIDEO || callType == AUDIO_VIDEO_SEND || callType == AUDIO_VIDEO_RECV)
@@ -726,6 +769,11 @@
     }
     else if (type == SDK_CALLBACK_ACCEPTED)
     {
+        [self.dapiview setHidden:NO];
+        [self.localVideoView setHidden:NO];
+        [self.remoteVideoView setHidden:NO];
+        //[self performSelectorOnMainThread:@selector(onAccepted:) withObject:nil waitUntilDone:NO];
+        [self.mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
         [self setCallIncomingFlag:NO];
     }
@@ -733,9 +781,24 @@
     {
         [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=200"] waitUntilDone:NO];
-        [self.localVideoView removeFromSuperview];
-        [self.remoteVideoView removeFromSuperview];
-        [self.dapiview removeFromSuperview];
+        if(self.localVideoView)
+        {
+            [self.localVideoView removeFromSuperview];
+            [self.localVideoView release];
+            self.localVideoView = nil;
+        }
+        if(self.remoteVideoView)
+        {
+            [self.remoteVideoView removeFromSuperview];
+            [self.remoteVideoView release];
+            self.remoteVideoView = nil;
+        }
+        if(self.dapiview)
+        {
+            [self.dapiview removeFromSuperview];
+//            [self.dapiview release];
+//            self.dapiview = nil;
+        }
         if (self.mCallObj)
         {
             [self.mCallObj release];
@@ -747,9 +810,24 @@
     {
         [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=%d",code] waitUntilDone:NO];
-        [self.localVideoView removeFromSuperview];
-        [self.remoteVideoView removeFromSuperview];
-        [self.dapiview removeFromSuperview];
+        if(self.localVideoView)
+        {
+            [self.localVideoView removeFromSuperview];
+            [self.localVideoView release];
+            self.localVideoView = nil;
+        }
+        if(self.remoteVideoView)
+        {
+            [self.remoteVideoView removeFromSuperview];
+            [self.remoteVideoView release];
+            self.remoteVideoView = nil;
+        }
+        if(self.dapiview)
+        {
+            [self.dapiview removeFromSuperview];
+//            [self.dapiview release];
+//            self.dapiview = nil;
+        }
         if (self.mCallObj)
         {
             [self.mCallObj release];

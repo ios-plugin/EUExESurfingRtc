@@ -65,6 +65,7 @@
 		EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkOperationRTC.h; sourceTree = "<group>"; };
 		EBB83B011C48E62100B8BA80 /* ReachabilityRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReachabilityRTC.h; sourceTree = "<group>"; };
 		EBB83B021C48E72000B8BA80 /* libtyrtcsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtyrtcsdk.a; path = EUExESurfingRtc/soureCode/lib/libtyrtcsdk.a; sourceTree = "<group>"; };
+		EBFB1BA71D127B3900857C68 /* RTCLive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTCLive.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +126,7 @@
 		4200187C1B0D903D009EB47B /* inc */ = {
 			isa = PBXGroup;
 			children = (
+				EBFB1BA71D127B3900857C68 /* RTCLive.h */,
 				4200187F1B0D903D009EB47B /* mknetwork */,
 				420018931B0D903D009EB47B /* sdkerrorcode.h */,
 				420018941B0D903D009EB47B /* sdkkey.h */,

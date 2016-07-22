@@ -98,7 +98,6 @@ typedef enum {
 - (double) usedMemory;
 @end
 
-
 @protocol SdkObjCallBackProtocol <NSObject>
 /**
  *  导航结果回调
@@ -241,6 +240,15 @@ typedef enum {
  */
 -(int)onRegisterResponse:(NSDictionary*)result  accObj:(AccObj*)accObj;
 /**
+ *  设置APNs结果回调
+ *
+ *  @param result       上报参数
+ *  @param accObj       账户对象
+ *
+ *  @return 错误码
+ */
+//-(int)onSetAPNsResponse:(NSDictionary*)result  accObj:(AccObj*)accObj;
+/**
  *  用户在线状态查询结果回调
  *
  *  @param result       上报参数
@@ -313,6 +321,17 @@ typedef enum {
  */
 -(int)getToken:(NSString*)accId andType:(SDK_ACCTYPE)accType andGrant:(NSString*)grant andAuthType:(SDK_ACC_AUTH_TYPE)authType;
 /**
+ *  设置APNs
+ *
+ *  @param pushToken   推送token
+ *  @param pushId    申请得到的pushId
+ *  @param pushKey      申请得到的pushKey
+ *  @param pushMaster   申请得到的pushMaster
+ *
+ *  @return 错误码
+ */
+//-(int)setAPNsToken:(NSString*)pushToken andPushId:(NSString*)pushId andPushKey:(NSString*)pushKey andPushMaster:(NSString*)pushMaster;
+/**
  *  用户注册
  *
  *  @param infoDic   上报参数
@@ -361,11 +380,9 @@ typedef enum {
 /**
  *  读取会议列表
  *
- *  @param param        请求参数
- *
  *  @return 错误码
  */
--(int)getGroupList:(NSDictionary*)param;
+-(int)getGroupList;
 #endif
 /**
  *  发送IM消息
@@ -536,13 +553,25 @@ typedef enum {
  */
 -(int)doStopRecording;
 /**
- *  摄像头切换
+ *  摄像头切换，美颜
  *
- *  @param cameraIndex   摄像头类型
+ *  @param cameraIndex   摄像头类型，1为前置，0为后置
  *
  *  @return 错误码
  */
 -(int)doSwitchCamera:(int)cameraIndex;
+/**
+ *  摄像头切换，美颜
+ *
+ *  @param balance   白平衡，取值范围0-255
+ *
+ *  @param deNoise   磨皮，取值范围0-10
+ *
+ *  @param colorEnhance   滤镜，取值范围0-12，1 暖黄 2 冷蓝 3 冷绿 4 冷紫 5 粉红 6 青色 7 暖化 8 底片 9 黑白 10 怀旧 11 淡化 12 色调对换
+ *
+ *  @return 错误码
+ */
+-(int)doSetBalance:(int)balance andDeNoise:(int)deNoise andColorEnhance:(int)colorEnhance;
 /**
  *  重新加载摄像头
  *
