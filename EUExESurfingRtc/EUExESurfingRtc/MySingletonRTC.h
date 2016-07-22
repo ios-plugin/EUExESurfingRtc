@@ -16,23 +16,6 @@
 #import "DAPIPView.h"
 #import "EUtility.h"
 
-typedef enum EVENTID
-{
-    MSG_NEED_VIDEO = 4000,
-    MSG_SET_AUDIO_DEVICE = 4001,
-    MSG_SET_VIDEO_DEVICE = 4002,
-    MSG_HIDE_LOCAL_VIDEO = 4003,
-    MSG_ROTATE_REMOTE_VIDEO = 4004,
-    MSG_SNAP = 4005,
-    MSG_MUTE = 4006,
-    MSG_SENDDTMF = 4007,
-    MSG_DOHOLD = 4008,
-    MSG_UPDATE_CALLDURATION = 4009,
-    MSG_HANGUP = 4010,
-    MSG_ACCEPT = 4011,
-    MSG_REJECT = 4012,
-}eventid;
-
 @interface MySingletonRTC : NSObject<SdkObjCallBackProtocol,AccObjCallBackProtocol,CallObjCallBackProtocol>
 
 @property (strong, nonatomic) SdkObj* mSDKObj;
@@ -63,13 +46,13 @@ typedef enum EVENTID
 @property (nonatomic,copy)NSString *currentTime;
 @property(nonatomic,retain)NSString * appkey;
 @property(nonatomic,retain)NSString * appid;
-@property(nonatomic,assign)int     mLogIndex;
 @property(nonatomic,assign)BOOL firstCheckNetwork;
 @property (strong, nonatomic) ReachabilityRTC* hostReach;
 @property (strong, nonatomic) CMMotionManager *mMotionManager;//自动旋转
 @property(nonatomic,assign)BOOL isGettingToken;//正在获取token时不能重复获取
-@property (nonatomic,assign) dispatch_queue_t callBackDispatchQueue;
+@property (nonatomic,strong) dispatch_queue_t callBackDispatchQueue;
 @property(nonatomic,assign)BOOL isViewSwitch;
+@property(nonatomic,retain)NSString *notification;
 
 + (instancetype)sharedInstance;
 - (void)setLog:(NSString*)log;

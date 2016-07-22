@@ -110,8 +110,8 @@ typedef enum  _SDK_VIDEO_ROTATE
 //呼叫保持
 typedef enum _SDK_HOLD_ACTION
 {
-    SDK_DO_UNHOLD = 0,
-    SDK_DO_HOLD,
+    SDK_DO_UNHOLD = 0,//RTC恢复通话
+    SDK_DO_HOLD,//RTC释放音频占用，只发不收
 }SDK_HOLD_ACTION;
 
 typedef enum _SDK_HOLD_STATUS
@@ -167,8 +167,11 @@ typedef enum _SDK_CALLBACK_TYPE
 #define KEY_GRP_SWITCHPICTURE                            @"autoSwitchPicture" //多人视频递补画面
 #define KEY_GRP_CODEC                                             @"codec" //微直播编码格式
 #define KEY_GRP_SCREENSPLIT                                  @"screenSplit" //分屏数量
-#define KEY_GRP_LV                                                      @"LV" //语音激励
+#define KEY_GRP_LV                                                      @"lv" //语音激励
 #define KEY_GRP_INITMODE                                        @"initMode" //是否预约会议
+#define KEY_GRP_VOICEMIXER                                    @"voiceMixer" //混音
+#define KEY_GRP_MAXDURATION                              @"maxDuration" //会议时长
+#define KEY_GRP_INFOMODE                                      @"infoMode" //返回信息
 #define KEY_GRP_JOINONLY                                        @"gvcjoinonly" //是否允许多终端主动加入
 #define KEY_GRP_ACCID                                               @"appAccountID" //账户
 #define KEY_GRP_CALLID                                             @"callId" //会议ID

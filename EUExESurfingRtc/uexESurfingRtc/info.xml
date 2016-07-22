@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin uexName="uexESurfingRtc" version="3.0.13" build ="13">
-    	<info>13:优化视频窗口大小</info>
+    <plugin uexName="uexESurfingRtc" version="3.0.14" build ="14">
+    	<info>14:增加hideLocalView接口，被叫接听时显示窗口，支持ipv6，支持自定义后台来电通知</info>
+    		<build>13:优化视频窗口大小</build>
     		<build>12:新增切换和旋转摄像头、交换窗口接口，call接口增加callInfo参数</build>
         <build>11:新增文本消息接口，修改call和acceptCall的calltype</build>
         <build>10:单例类加入后缀，防止冲突</build>
@@ -9,11 +10,11 @@
         <build>8:修改onGlobalStatus与cbCallStatus</build>
         <build>7:修改login接口参数与Android不一致问题，增加后台长连接通知与网络切换检测</build>
         <build>6:增加设置appid和appkey回调</build>
-         <build>5:改为主函数回调</build>
-          <build>4:测试接收appid和appkey的方式</build>
-            <build>3:改变接收appid和appkey的方式</build>
-         <build>2:测试setappid接口</build>
-         <build>1:doNavigation参数默认传cloud2</build>
+        <build>5:改为主函数回调</build>
+        <build>4:测试接收appid和appkey的方式</build>
+        <build>3:改变接收appid和appkey的方式</build>
+        <build>2:测试setappid接口</build>
+        <build>1:doNavigation参数默认传cloud2</build>
        <build>0:天翼RTC插件</build>
     </plugin>
 </uexplugins>

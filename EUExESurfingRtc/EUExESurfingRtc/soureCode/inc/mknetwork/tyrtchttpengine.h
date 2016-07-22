@@ -26,6 +26,19 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                      completionHandler:(RespOkBlock) completionBlock
                           errorHandler:(MKNKErrorBlock) errorBlockr;
 
+-(MKNetworkOperationRTC*) setPushInfo:(NSString*)httpMethod
+                               useSSL:(BOOL)useSSL
+                                appId:(NSString*)appId
+                               appKey:(NSString*)appKey
+                                accId:(NSString*)accId
+                         terminalType:(NSString*)terminalType
+                                   dt:(NSString*)dt
+                               pushId:(NSString*)pushId
+                              pushKey:(NSString*)pushKey
+                           pushMaster:(NSString*)pushMaster
+                    completionHandler:(RespOkBlock) completionBlock
+                         errorHandler:(MKNKErrorBlock) errorBlock;
+
 -(MKNetworkOperationRTC*) getUserStatus:(NSString*)httpMethod
                               useSSL:(BOOL)useSSL
                                appId:(NSString*)appId
@@ -53,8 +66,11 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                        switchPic:(int)switchPicture
                            codec:(int)codec
                      screenSplit:(int)screen
-                              lv:(int)lv
+                                    lv:(int)lv
                         initMode:(int)initMode
+                    voiceMixer:(int)voiceMixer
+                maxDuration:(long)maxDuration
+                       infoMode:(int)infoMode
                            token:(NSString*)token
                completionHandler:(RespOkBlock) completionBlock
                     errorHandler:(MKNKErrorBlock) errorBlock;
@@ -128,7 +144,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                                  creator:(NSString*)gvcCreator
                              creatorType:(NSString*)gvcCreatorType
                                   callID:(NSString*)callID
-                          openrationList:(NSMutableArray*)openrationList
+                          operationList:(NSMutableArray*)operationList
                                    token:(NSString*)token
                        completionHandler:(RespOkBlock) completionBlock
                             errorHandler:(MKNKErrorBlock) errorBlock;
@@ -145,7 +161,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                               memberToShow:(NSString*)mbToShow
                                screenSplit:(int)screen
                                         lv:(int)lv
-                            openrationList:(NSMutableArray*)openrationList
+                            operationList:(NSMutableArray*)operationList
                                      token:(NSString*)token
                          completionHandler:(RespOkBlock) completionBlock
                               errorHandler:(MKNKErrorBlock) errorBlock;
