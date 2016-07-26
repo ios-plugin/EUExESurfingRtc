@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin uexName="uexESurfingRtc" version="3.0.14" build ="14">
-    	<info>14:增加hideLocalView接口，被叫接听时显示窗口，支持ipv6，支持自定义后台来电通知</info>
+    <plugin uexName="uexESurfingRtc" version="3.0.15" build ="15">
+    	<info>15:优化多终端登录互踢机制，去掉onGlobalStatus的回调时间</info>
+    	  <build>14:增加hideLocalView接口，被叫接听时显示窗口，支持ipv6，支持自定义后台来电通知</build>
     		<build>13:优化视频窗口大小</build>
     		<build>12:新增切换和旋转摄像头、交换窗口接口，call接口增加callInfo参数</build>
         <build>11:新增文本消息接口，修改call和acceptCall的calltype</build>

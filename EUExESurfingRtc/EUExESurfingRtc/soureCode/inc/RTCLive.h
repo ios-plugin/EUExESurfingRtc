@@ -77,13 +77,13 @@ typedef enum
 
 /**
  *  登录RTC云平台
- *  @param appId      平台申请的appid
- *  @param usrId      平台申请的usrid
- *  @param token      平台申请的token
+ *  @param appId                平台申请的appid
+ *  @param usrId                平台申请的usrid
+ *  @param capabilityToken      平台申请的token
  *
  *  @return EC_OK，登录结果由回调函数返回
  */
--(int)loginRtcCloud:(NSString*)appId usrId:(NSString*)usrId token:(NSString*)token;
+-(int)loginRtcCloud:(NSString*)appId usrId:(NSString*)usrId capabilityToken:(NSString*)capabilityToken;
 
 /**
  *  播放直播：sdk构建播放界面和相关控制按钮以及交互响应
@@ -127,7 +127,7 @@ typedef enum
  *  @param pushURL            直播推流地址
  *  @return EC_OK或者错误码
  */
--(int)startCast:(int)channelID pushURL:(const char*)pushURL;
+-(int)startCast:(NSString *)channelID pushURL:(const char*)pushURL;
 
 /**
  *  停止直播
@@ -192,19 +192,6 @@ typedef enum
  *  对象释放
  */
 -(void)dealloc;
-
-#define SCREEN_WIDTH       [[UIScreen mainScreen] bounds].size.width
-#define SCREEN_HEIGHT      [[UIScreen mainScreen] bounds].size.height
-#define SCREEN_SCALE        [UIScreen mainScreen].scale
-//系统是否为ios5以上
-#define ISIOS5 !([[[UIDevice currentDevice] systemVersion] floatValue] <=4.9f)
-//系统是否为ios6以上
-#define ISIOS6 !([[[UIDevice currentDevice] systemVersion] floatValue] <=5.9f)
-//系统是否为ios7以上
-#define ISIOS7 !([[[UIDevice currentDevice] systemVersion] floatValue] <=6.9f)
-//状态栏高度
-#define  CW_STATUSBAR_HEIGHT  20.0f
-#define  IOS7_STATUSBAR_DELTA   (ISIOS7?(CW_STATUSBAR_HEIGHT):0)
 
 @end
 

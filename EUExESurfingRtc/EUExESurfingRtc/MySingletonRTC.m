@@ -39,14 +39,10 @@
         self.callBackDispatchQueue=dispatch_queue_create("gcd.uexESurfingRtcCallBackDispatchQueue",NULL);
         [self checkNetWorkReachability];//检测网络切换
         
-//        NSString* file = [[NSBundle mainBundle] pathForResource:@"AppCanPlugin-Info" ofType:@"plist"];
-//        NSMutableDictionary* dict = [[NSMutableDictionary alloc] initWithContentsOfFile:file];
         NSString* islog = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"enablelog"];
         self.notification = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"notification"];
-        
         if([islog isEqualToString:@"1"])
             initCWDebugLog();
-        
         
         //注册本地推送
         if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]&&[[[UIDevice currentDevice]systemVersion]floatValue]>=8.0)
@@ -78,19 +74,8 @@
 }
 
 -(void)onGlobalStatus:(NSString*)senser{
-    NSDateFormatter *dateFormat=[[NSDateFormatter alloc] init];
-    [dateFormat setDateFormat:@"HH:mm:ss"];
-    //[dateFormat setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
-    //    NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-    //    [dateFormat setLocale:usLocale];
-    //    [usLocale release];
-    NSString* datestr = [dateFormat stringFromDate:[NSDate date]];
-    [dateFormat release];
     
-    NSString* strs = [NSString stringWithFormat:@"%@: %@",datestr,senser];
-    //[self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:0 strData:strs];
-    
-    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",strs];
+    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",senser];
     dispatch_async(self.callBackDispatchQueue, ^(void){
         [EUtility evaluatingJavaScriptInRootWnd:jsString];
     });
@@ -220,8 +205,6 @@
     CWLogDebug(@"SDKTEST:%@:%@",datestr,log);
     NSString* strs = [NSString stringWithFormat:@"%@:%@",datestr,log];
     NSLog(@"++++==>>>%@",strs);
-    //[self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:1 strData:strs];
-    // [[NSUserDefaults standardUserDefaults]setObject:str forKey:[NSString stringWithFormat:@"ViewLog%d",mLogIndex]];
 }
 
 -(NSInteger)calcRotation:(double)xy z:(double)z
