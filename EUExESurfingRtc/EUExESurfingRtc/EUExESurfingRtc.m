@@ -61,13 +61,6 @@
 }
 
 -(void)onGlobalStatus:(NSString*)senser{
-//    NSDateFormatter *dateFormat=[[NSDateFormatter alloc] init];
-//    [dateFormat setDateFormat:@"HH:mm:ss"];
-//    NSString* datestr = [dateFormat stringFromDate:[NSDate date]];
-//    [dateFormat release];
-    
-    //NSString* strs = [NSString stringWithFormat:@"%@: %@",datestr,senser];
-    //[self jsSuccessWithName:@"uexESurfingRtc.onGlobalStatus" opId:0 dataType:0 strData:strs];
     
     NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",senser];
     dispatch_async(self.mgr.callBackDispatchQueue, ^(void){
@@ -506,22 +499,6 @@
         [self.mgr setLog:@"请先呼叫"];
         return;
     }
-    
-    //获取应用程序沙盒的Documents目录
-//    NSBundle* mainBundle = [NSBundle mainBundle];
-//    NSDictionary* infoDictionary =  [mainBundle infoDictionary];
-//    NSString * bundleName = [infoDictionary objectForKey:@"CFBundleName"];
-//    //创建目录下的文件路径；
-//    NSString *path = [[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:bundleName ]stringByAppendingPathComponent:@"photo"];
-//    NSFileManager *fileManager = [NSFileManager defaultManager];
-//    //进行创建；
-//    [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
-//    
-//    self.mgr.currentTime = [self getCurrentTime];
-//    NSLog(@"当前时间:%@",self.mgr.currentTime);
-//    
-//    NSString *resultPath = [NSString stringWithFormat:@"%@/%@.png",path,self.mgr.currentTime];
-//    NSLog(@"当前时间的路径 :%@",resultPath);
     
     [self.mgr.mCallObj doSnapImage];
     
