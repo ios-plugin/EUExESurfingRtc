@@ -61,8 +61,12 @@
 }
 
 -(void)onGlobalStatus:(NSString*)senser{
-    
-    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",senser];
+    NSDateFormatter *dateFormat=[[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"HH:mm:ss"];
+    NSString* datestr = [dateFormat stringFromDate:[NSDate date]];
+    [dateFormat release];
+    NSString* strs = [NSString stringWithFormat:@"%@: %@",datestr,senser];
+    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",strs];
     dispatch_async(self.mgr.callBackDispatchQueue, ^(void){
         [EUtility evaluatingJavaScriptInRootWnd:jsString];
     });
@@ -324,7 +328,7 @@
             {
                 if (self.mgr.mCallObj)
                 {
-                    [self.mgr.mCallObj doHangupCall];
+                    [self.mgr.mCallObj doReleaseCallResource];
                     [self.mgr.mCallObj release];
                     self.mgr.mCallObj = nil;
                 }
@@ -400,9 +404,11 @@
     [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
     if (self.mgr.mCallObj)
     {
-        [self.mgr.mCallObj doHangupCall];
-        [self.mgr.mCallObj release];
-        self.mgr.mCallObj = nil;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
+            [self.mgr.mCallObj doHangupCall];
+            [self.mgr.mCallObj release];
+            self.mgr.mCallObj = nil;
+        });
     }
     
     [self.mgr setLog:@"呼叫已结束"];

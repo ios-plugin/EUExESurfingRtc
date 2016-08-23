@@ -46,14 +46,13 @@ typedef enum
 
 #define RTCLivePlayerPlaybackDidFinishNotification @"PlaybackDidFinish" //当播放结束时,发送本通知
 #define RTCLivePlayerPlaybackErrorNotification     @"PlaybackError"     //当播放器发生错误时,发送本通知 ￼
+#define RTCLiveRtmpPushErrorNotification     @"RtmpPushError"     //当推流发生错误时（如推流断开，网络连接断开）,发送本通知 ￼
 
 
 @interface RTCLive : NSObject
 {
-    int                     mObjId;
     id<RTCLiveCallBackProtocol> mDelegate;
 }
-@property(nonatomic,assign)int ObjId;
 @property(nonatomic,assign)id<RTCLiveCallBackProtocol> Delegate;
 +(NSString*)ECodeToStr:(int)code;
 
@@ -77,8 +76,8 @@ typedef enum
 
 /**
  *  登录RTC云平台
- *  @param appId                平台申请的appid
- *  @param usrId                平台申请的usrid
+ *  @param appId      平台申请的appid
+ *  @param usrId      平台申请的usrid
  *  @param capabilityToken      平台申请的token
  *
  *  @return EC_OK，登录结果由回调函数返回
@@ -111,10 +110,22 @@ typedef enum
  *  必须先调用此接口开始直播预览，在预览窗口可以切换摄像头
  *  @param width              视频宽度
  *  @param height             视频高度
+ * 支持的分辨率如下：
+ * width*height     width*height   比例
+ * 352x288          288x352     -- 11:9
+ * 704x576          576x704     -- 11:9
+ * 192x144          144x192     -- 12:9(4:3)
+ * 480x360          360x480     -- 12:9(4:3)
+ * 640x480          480x640     -- 12:9(4:3)
+ * 1280x960         960x1280    -- 12:9(4:3)
+ * 640x360          360x640     -- 16:9
+ * 960x540          540x960     -- 16:9
+ * 1280x720         720x1280    -- 16:9
+ * 1920x1080        1080x1920   -- 16:9
  *  @param videoFramerate     视频帧率
  *  @param cameraId           摄像头选择：0 后置摄像头，1 前置摄像头
  *  @param videoCodec         编码器选择：0 硬件编码，1 软件编码
- *  @param onlyAudio          仅音频直播
+ *  @param onlyAudio          仅音频直播：0 音视频，1 仅音频
  *  @param localVideoWindow   视频预览窗口
  *  @return EC_OK或者错误码
  */

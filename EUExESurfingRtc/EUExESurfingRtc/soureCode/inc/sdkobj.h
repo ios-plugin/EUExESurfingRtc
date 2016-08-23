@@ -57,8 +57,7 @@ void cvWriteCinLog( const char* function,
 void initCWDebugLog();
 
 //视频远端
-@interface IOSDisplay : UIView {
-}
+@interface IOSDisplay : UIView
 @end
 
 //设备信息
@@ -78,7 +77,7 @@ typedef enum {
     
 } UIDeviceFamily;
 
-@interface UIDevice (Hardware)
+@interface UIDevice (Hardware)//分类
 - (NSString *) platform;
 - (NSString *) hwmodel;
 - (NSUInteger) platformType;
@@ -109,16 +108,8 @@ typedef enum {
 @end
 
 @interface SdkObj:NSObject
-{
-	int                     mObjId;
-    id<SdkObjCallBackProtocol> mDelegate;
-    NSString*   mTerminalType;
-    NSString*   mUDID;
-}
-@property(nonatomic,assign)int ObjId;
 @property(nonatomic,assign)id<SdkObjCallBackProtocol> Delegate;
-@property(nonatomic,copy)NSString*    TerminalType;
-@property(nonatomic,copy)NSString*    UDID;
+//错误码转字符串
 +(NSString*)ECodeToStr:(int)code;
 /**
  *  对象初始化
@@ -189,10 +180,6 @@ typedef enum {
  */
 -(void)onAppEnterBackground;
 /**
- *  应用切换到前台
- */
-//-(void)onAppEnterForeground;
-/**
  *  网络切换
  */
 -(void)onNetworkChanged;
@@ -210,7 +197,6 @@ typedef enum {
  *  @return 错误码
  */
 -(int)onSendIM:(int)status;
-//-(int)onPushMessage:(NSDictionary*)param;
 /**
  *  IM消息到达回调
  *
@@ -247,7 +233,7 @@ typedef enum {
  *
  *  @return 错误码
  */
-//-(int)onSetAPNsResponse:(NSDictionary*)result  accObj:(AccObj*)accObj;
+-(int)onSetAPNsResponse:(NSDictionary*)result  accObj:(AccObj*)accObj;
 /**
  *  用户在线状态查询结果回调
  *
@@ -281,16 +267,7 @@ typedef enum {
 @end
 
 @interface AccObj:NSObject
-{
-	int		mObjId;
-    id<AccObjCallBackProtocol> mDelegate;
-    SDK_ACCTYPE mAccType;
-    NSString*   mGrantStr;
-}
-@property(nonatomic,assign)int ObjId;
 @property(nonatomic,assign)id<AccObjCallBackProtocol> Delegate;
-@property(nonatomic,assign)SDK_ACCTYPE AccType;
-@property(nonatomic,copy)NSString*    GrantStr;
 /**
  *  对象初始化
  *
@@ -330,7 +307,7 @@ typedef enum {
  *
  *  @return 错误码
  */
-//-(int)setAPNsToken:(NSString*)pushToken andPushId:(NSString*)pushId andPushKey:(NSString*)pushKey andPushMaster:(NSString*)pushMaster;
+-(int)setAPNsToken:(NSString*)pushToken andPushId:(NSString*)pushId andPushKey:(NSString*)pushKey andPushMaster:(NSString*)pushMaster;
 /**
  *  用户注册
  *
@@ -376,14 +353,6 @@ typedef enum {
  *  @return 结果
  */
 -(int)doUnRegister;
-#if (SDK_HAS_GROUP>0)
-/**
- *  读取会议列表
- *
- *  @return 错误码
- */
--(int)getGroupList;
-#endif
 /**
  *  发送IM消息
  *
@@ -392,6 +361,18 @@ typedef enum {
  *  @return 错误码
  */
 -(int)doSendIM:(NSDictionary*)param;
+#if (SDK_HAS_GROUP>0)
+/**
+ *  读取会议列表
+ *
+ *  @return 错误码
+ */
+-(int)getGroupList;
+//-(int)getGroupRecordStatus:(NSDictionary*)param;
+//-(int)doGroupRecordManage:(NSDictionary*)param;
+#endif
+//-(int)doUploadFile:(NSDictionary*)param;
+
 @end
 
 
@@ -438,21 +419,10 @@ typedef enum {
 @end
 
 @interface CallObj:NSObject
-{
-	int		mObjId;
-    BOOL    mMuteStatus;
-    int     mCallStatus;
-    int     mCallWay;
-    int     mCallMedia;
-    id<CallObjCallBackProtocol> mDelegate;
-}
-@property(nonatomic,assign)int  ObjId;
-@property(nonatomic,assign)BOOL MuteStatus;
-@property(nonatomic,assign)int  CallStatus;
-@property(nonatomic,assign)int  CallMedia;
-@property(nonatomic,assign)int  CallWay;
-@property(nonatomic,assign,readonly,getter = getCallDuration)unsigned int  CallDuration;//获取呼叫时长
 @property(nonatomic,assign)id<CallObjCallBackProtocol> Delegate;
+@property(nonatomic,assign)BOOL MuteStatus;//静音状态
+@property(nonatomic,assign)int  CallMedia;//媒体类型
+@property(nonatomic,assign,readonly,getter = getCallDuration)unsigned int  CallDuration;//获取呼叫时长
 /**
  *  对象初始化
  *
@@ -499,6 +469,11 @@ typedef enum {
  *  @return 错误码
  */
 -(int)doHangupCall;
+/**
+ *  释放呼叫资源，callobj释放时调用
+ *
+ *  @return 错误码
+ */
 -(int)doReleaseCallResource;
 /**
  *  静音

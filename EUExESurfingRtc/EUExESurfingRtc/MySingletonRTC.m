@@ -74,8 +74,12 @@
 }
 
 -(void)onGlobalStatus:(NSString*)senser{
-    
-    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",senser];
+    NSDateFormatter *dateFormat=[[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"HH:mm:ss"];
+    NSString* datestr = [dateFormat stringFromDate:[NSDate date]];
+    [dateFormat release];
+    NSString* strs = [NSString stringWithFormat:@"%@: %@",datestr,senser];
+    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.onGlobalStatus(\"0\",\"0\",\'%@\');",strs];
     dispatch_async(self.callBackDispatchQueue, ^(void){
         [EUtility evaluatingJavaScriptInRootWnd:jsString];
     });
@@ -370,7 +374,11 @@
             //            }
             return;
         }
-        [self.mSDKObj onAppEnterBackground];//网络恢复后进行重连
+        if(!self.isGettingToken)
+        {
+            self.isGettingToken = YES;
+            [self.mSDKObj onAppEnterBackground];//网络恢复后进行重连
+        }
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1002" waitUntilDone:NO];
     }
     else
@@ -383,7 +391,7 @@
         
         if(self.mCallObj)//通话被迫结束，销毁通话界面
         {
-            [self.mCallObj doHangupCall];
+            [self.mCallObj doReleaseCallResource];
             [self.mCallObj release];
             self.mCallObj = nil;
         }
@@ -784,6 +792,7 @@
         }
         if (self.mCallObj)
         {
+            [self.mCallObj doReleaseCallResource];
             [self.mCallObj release];
             self.mCallObj = nil;
         }
@@ -813,6 +822,7 @@
         }
         if (self.mCallObj)
         {
+            [self.mCallObj doReleaseCallResource];
             [self.mCallObj release];
             self.mCallObj = nil;
         }

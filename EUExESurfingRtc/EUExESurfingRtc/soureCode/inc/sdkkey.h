@@ -6,8 +6,6 @@
 
 //登录字段
 #define KEY_ACC_SRTP                                            @"srtp.mode"
-#define KEY_REG_RETRY                                          @"reg.retry"
-#define KEY_REG_DO                                                @"reg.do"
 #define KEY_REG_EXPIRES                                       @"reg.expires"
 #define KEY_REG_RSP_REASON                             @"reg.rsp.reason"
 #define KEY_REG_RSP_CODE                                  @"reg.rsp.code"
@@ -189,7 +187,19 @@ typedef enum _SDK_CALLBACK_TYPE
 #define KEY_GRP_MEMBERLIST                                   @"memberList" //账户列表
 #define KEY_GRP_ISCREATOR                                     @"isgrpcreator"//是否为创建者
 #define KEY_GRP_MBSTATUS                                      @"memberStatus"//成员状态
-#define KEY_GRP_ACTION                                           @"action"//多人请求类型
+#define KEY_GRP_ACTION                                           @"action"//多人请求类型/录制动作
+#define KEY_GRP_RECORDMODE                              @"recordMode"//录制模式
+#define KEY_GRP_WHOMTORECORD                       @"whomToRecord"//录制成员
+#define KEY_GRP_MEDIATYPE                                    @"mediaType"//录制媒体类型
+#define KEY_GRP_MEDIAFILENAME                           @"mediaFileName"//录制文件名
+#define KEY_GRP_MEDIAFILETYPE                             @"mediaFileType"//录制文件格式
+#define KEY_GRP_MAXMEDIASIZE                             @"maxMediaSize"//录制文件大小
+#define KEY_GRP_MEMO                                              @"memo"//录制描述
+#define KEY_GRP_RECORDTIME                                 @"recordTime"//开始录制时间
+#define KEY_GRP_MATCHOPTION                             @"matchOption"//匹配方式
+#define KEY_GRP_URL                                                   @"url"//url
+#define KEY_GRP_ACTIONPARA                                 @"actionPara"//文件参数
+#define KEY_GRP_FILEPATH                                        @"filePath"//文件路径
 
 //多人请求类型
 typedef enum _SDK_GROUP_OPT
@@ -202,7 +212,7 @@ typedef enum _SDK_GROUP_OPT
     SDK_GROUP_CLOSE = 106, //关闭群组
     SDK_GROUP_JOIN = 107,//主动参会
     SDK_GROUP_VIDEO = 108, //管理视频分屏
-    //SDK_GROUP_GRPLIST = 110,//获取会议列表
+    //SDK_GROUP_RECORD = 109,//录音录像
 }SDK_GROUP_OPT;
 
 //多人会话类型
