@@ -16,6 +16,6 @@
 
 @interface EUExESurfingRtc : EUExBase
 
-@property (nonatomic,strong) MySingletonRTC *mgr;
+@property (nonatomic,retain) MySingletonRTC *mgr;
 
 @end
