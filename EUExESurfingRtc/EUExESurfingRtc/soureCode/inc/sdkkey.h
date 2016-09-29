@@ -212,7 +212,6 @@ typedef enum _SDK_GROUP_OPT
     SDK_GROUP_CLOSE = 106, //关闭群组
     SDK_GROUP_JOIN = 107,//主动参会
     SDK_GROUP_VIDEO = 108, //管理视频分屏
-    //SDK_GROUP_RECORD = 109,//录音录像
 }SDK_GROUP_OPT;
 
 //多人会话类型

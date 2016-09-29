@@ -18,6 +18,7 @@
 
 @interface MySingletonRTC : NSObject<SdkObjCallBackProtocol,AccObjCallBackProtocol,CallObjCallBackProtocol>
 
+@property(nonatomic,assign)BOOL isRoot;
 @property (nonatomic,retain) SdkObj* mSDKObj;
 @property (nonatomic,retain) AccObj* mAccObj;
 @property (nonatomic,retain) CallObj*  mCallObj;
@@ -52,8 +53,21 @@
 @property (nonatomic,retain) dispatch_queue_t callBackDispatchQueue;
 @property(nonatomic,assign)BOOL isViewSwitch;
 @property(nonatomic,retain)NSString *notification;
+@property (nonatomic, retain) NSString *pushToken;
+@property (nonatomic, retain) NSDictionary *pushInfo;
+@property(nonatomic,retain)NSString *pushId;
+@property(nonatomic,retain)NSString *pushKey;
+@property (nonatomic, retain) NSString *pushMasterSecret;
+//@property(nonatomic,assign)BOOL isKicked;
 
 + (instancetype)sharedInstance;
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler;
 - (void)setLog:(NSString*)log;
 - (void)doUnRegister;
 - (void)onRegister;
