@@ -300,6 +300,7 @@ typedef enum {
 /**
  *  设置APNs
  *
+ *  @param accId      账户ID
  *  @param pushToken   推送token
  *  @param pushId    申请得到的pushId
  *  @param pushKey      申请得到的pushKey
@@ -307,7 +308,7 @@ typedef enum {
  *
  *  @return 错误码
  */
--(int)setAPNsToken:(NSString*)pushToken andPushId:(NSString*)pushId andPushKey:(NSString*)pushKey andPushMaster:(NSString*)pushMaster;
+-(int)setAPNsToken:(NSString*)accId andPushToken:(NSString*)pushToken andPushId:(NSString*)pushId andPushKey:(NSString*)pushKey andPushMaster:(NSString*)pushMaster;
 /**
  *  用户注册
  *
@@ -368,10 +369,8 @@ typedef enum {
  *  @return 错误码
  */
 -(int)getGroupList;
-//-(int)getGroupRecordStatus:(NSDictionary*)param;
-//-(int)doGroupRecordManage:(NSDictionary*)param;
+
 #endif
-//-(int)doUploadFile:(NSDictionary*)param;
 
 @end
 

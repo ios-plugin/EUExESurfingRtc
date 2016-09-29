@@ -176,74 +176,80 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                   completionHandler:(RespOkBlock) completionBlock
                        errorHandler:(MKNKErrorBlock) errorBlock;
 
-//-(MKNetworkOperationRTC*) GrpRecord:(NSString*)httpMethod
-//                                       useSSL:(BOOL)useSSL
-//                                        appId:(NSString*)appId
-//                                       appKey:(NSString*)appKey
-//                                      creator:(NSString*)gvcCreator
-//                                  creatorType:(NSString*)gvcCreatorType
-//                                       callID:(NSString*)callID
-//                                       action:(int)action
-//                                   recordMode:(int)recordMode
-//                                 whomToRecord:(NSString*)whomToRecord
-//                                    mediaType:(int)mediaType
-//                                mediaFileName:(NSString*)mediaFileName
-//                                mediaFileType:(NSString*)mediaFileType
-//                                  maxDuration:(long)maxDuration
-//                                 maxMediaSize:(int)maxMediaSize
-//                                         memo:(NSString*)memo
-//                                        token:(NSString*)token
-//                            completionHandler:(RespOkBlock) completionBlock
-//                                 errorHandler:(MKNKErrorBlock) errorBlock;
-//
-//-(MKNetworkOperationRTC*) getGroupRecordStatus:(NSString*)httpMethod
-//                                        useSSL:(BOOL)useSSL
-//                                         appId:(NSString*)appId
-//                                        appKey:(NSString*)appKey
-//                                       creator:(NSString*)gvcCreator
-//                                   creatorType:(NSString*)gvcCreatorType
-//                                        callID:(NSString*)callID
-//                                          name:(NSString*)gvcName
-//                                    recordTime:(NSDate*)recordTime
-//                                     mediaType:(int)mediaType
-//                                 mediaFileName:(NSString*)mediaFileName
-//                                          memo:(NSString*)memo
-//                                   matchOption:(int)matchOption
-//                                         token:(NSString*)token
-//                             completionHandler:(RespOkBlock) completionBlock
-//                                  errorHandler:(MKNKErrorBlock) errorBlock;
-//
-//-(MKNetworkOperationRTC*) GrpRecordMediaManagement:(NSString*)httpMethod
-//                                            useSSL:(BOOL)useSSL
-//                                             appId:(NSString*)appId
-//                                            appKey:(NSString*)appKey
-//                                           creator:(NSString*)gvcCreator
-//                                       creatorType:(NSString*)gvcCreatorType
-//                                            callID:(NSString*)callID
-//                                               url:(NSString*)url
-//                                            action:(int)action
-//                                        actionPara:(NSString*)actionPara
-//                                             token:(NSString*)token
-//                                 completionHandler:(RespOkBlock) completionBlock
-//                                      errorHandler:(MKNKErrorBlock) errorBlock;
-//
-//-(MKNetworkOperationRTC*) UploadFile:(NSString*)httpMethod
-//                              useSSL:(BOOL)useSSL
-//                               appId:(NSString*)appId
-//                              appKey:(NSString*)appKey
-//                             creator:(NSString*)gvcCreator
-//                         creatorType:(NSString*)gvcCreatorType
-//                            filePath:(NSString*)filePath
-//                               token:(NSString*)token
-//                   completionHandler:(RespOkBlock) completionBlock
-//                        errorHandler:(MKNKErrorBlock) errorBlock;
-//
-//-(MKNetworkOperationRTC*) UploadFileToken:(NSString*)httpMethod
-//                                   useSSL:(BOOL)useSSL
-//                                fileToken:(NSString*)fileToken
-//                                    token:(NSString*)token
-//                        completionHandler:(RespOkBlock) completionBlock
-//                             errorHandler:(MKNKErrorBlock) errorBlock;
+-(MKNetworkOperationRTC*) GrpRecord:(NSString*)httpMethod
+                                       useSSL:(BOOL)useSSL
+                                        appId:(NSString*)appId
+                                       appKey:(NSString*)appKey
+                                      creator:(NSString*)gvcCreator
+                                  creatorType:(NSString*)gvcCreatorType
+                                       callID:(NSString*)callID
+                                       action:(int)action
+                                   recordMode:(int)recordMode
+                                 whomToRecord:(NSString*)whomToRecord
+                                    mediaType:(int)mediaType
+                                mediaFileName:(NSString*)mediaFileName
+                                mediaFileType:(NSString*)mediaFileType
+                                  maxDuration:(long)maxDuration
+                                 maxMediaSize:(int)maxMediaSize
+                                         memo:(NSString*)memo
+                                        token:(NSString*)token
+                            completionHandler:(RespOkBlock) completionBlock
+                                 errorHandler:(MKNKErrorBlock) errorBlock;
+
+-(MKNetworkOperationRTC*) getGroupRecordStatus:(NSString*)httpMethod
+                                        useSSL:(BOOL)useSSL
+                                         appId:(NSString*)appId
+                                        appKey:(NSString*)appKey
+                                       creator:(NSString*)gvcCreator
+                                   creatorType:(NSString*)gvcCreatorType
+                                        callID:(NSString*)callID
+                                          name:(NSString*)gvcName
+                                    recordTime:(NSString*)recordTime
+                                     mediaType:(int)mediaType
+                                 mediaFileName:(NSString*)mediaFileName
+                                          memo:(NSString*)memo
+                                   matchOption:(int)matchOption
+                                         token:(NSString*)token
+                             completionHandler:(RespOkBlock) completionBlock
+                                  errorHandler:(MKNKErrorBlock) errorBlock;
+
+-(MKNetworkOperationRTC*) GrpRecordFileManagement:(NSString*)httpMethod
+                                            useSSL:(BOOL)useSSL
+                                             appId:(NSString*)appId
+                                            appKey:(NSString*)appKey
+                                           creator:(NSString*)gvcCreator
+                                       creatorType:(NSString*)gvcCreatorType
+                                            callID:(NSString*)callID
+                                               url:(NSString*)url
+                                            action:(int)action
+                                        actionPara:(NSString*)actionPara
+                                             token:(NSString*)token
+                                 completionHandler:(RespOkBlock) completionBlock
+                                      errorHandler:(MKNKErrorBlock) errorBlock;
+
+-(MKNetworkOperationRTC*) UploadFile:(NSString*)httpMethod
+                              useSSL:(BOOL)useSSL
+                               appId:(NSString*)appId
+                              appKey:(NSString*)appKey
+                             creator:(NSString*)gvcCreator
+                         creatorType:(NSString*)gvcCreatorType
+                            filePath:(NSString*)filePath
+                               token:(NSString*)token
+                   completionHandler:(RespOkBlock) completionBlock
+                        errorHandler:(MKNKErrorBlock) errorBlock;
+
+-(MKNetworkOperationRTC*) UploadFileManagement:(NSString*)httpMethod
+                                        useSSL:(BOOL)useSSL
+                                         appId:(NSString*)appId
+                                        appKey:(NSString*)appKey
+                                       creator:(NSString*)gvcCreator
+                                   creatorType:(NSString*)gvcCreatorType
+                                           url:(NSString*)url
+                                        action:(int)action
+                                    actionPara:(NSString*)actionPara
+                                         token:(NSString*)token
+                             completionHandler:(RespOkBlock) completionBlock
+                                  errorHandler:(MKNKErrorBlock) errorBlock;
 
 //-(MKNetworkOperationRTC*) pushMessage:(NSString*)httpMethod
 //                                useSSL:(BOOL)useSSL

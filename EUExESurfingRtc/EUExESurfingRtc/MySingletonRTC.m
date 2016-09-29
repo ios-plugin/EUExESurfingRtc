@@ -5,7 +5,7 @@
 //  Created by cc on 15/11/4.
 //  Copyright © 2015年 hexc. All rights reserved.
 //
-
+#import <UserNotifications/UserNotifications.h>
 #import "MySingletonRTC.h"
 
 #define APP_USER_AGENT      @"RTC_AppCan"
@@ -23,36 +23,151 @@
     return sharedObject;
 }
 
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    //解析APNs通知
+    if(launchOptions)
+    {
+        NSDictionary* notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        NSDictionary* aps = [notification objectForKey:@"aps"];
+        NSDictionary* alert = [aps objectForKey:@"alert"];
+        self.pushInfo = [alert objectForKey:@"body"];
+    }
+    
+    // 注册APNS
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [self registerUserNotification];
+    
+    return YES;
+}
+
+/** 注册APNS,注:获取DeviceToken不同项目或版本会有所不同，可以参考如下方式注册APNs。 */
+- (void)registerUserNotification
+{
+    // 判读系统版本是否是“iOS 8.0”以上
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0 ||
+        [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
+        
+        // 定义用户通知类型(Remote.远程 - Badge.标记 Alert.提示 Sound.声音)
+        UIUserNotificationType types = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound;
+        
+        // 定义用户通知设置
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        
+        // 注册用户通知 - 根据用户通知设置
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+    } else { // iOS8.0 以前远程推送设置方式
+        // 定义远程通知类型(Remote.远程 - Badge.标记 Alert.提示 Sound.声音)
+        UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
+        
+        // 注册远程通知 -根据远程通知类型
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
+    }
+}
+
+/** 已登记用户通知 ,IOS 8.0以上使用*/
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+{
+    [application registerForRemoteNotifications];
+}
+
+/** 注册APNs成功*/
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSLog(@"\n>>>[DeviceToken Success]:%@\n\n", token);
+    self.pushToken = token;
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+    NSString *error_str = [NSString stringWithFormat: @"%@", error];
+    NSLog(@"Failed to get token, error:%@", error_str);
+}
+
+/** APP已经接收到“远程”通知(推送) - (App运行在后台/App运行在前台) */
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+    application.applicationIconBadgeNumber = 0; // 标签
+    NSLog(@"\n>>>[Receive RemoteNotification]:%@\n\n", userInfo);
+    //解析APNs通知
+    if(userInfo)
+    {
+        NSDictionary* aps = [userInfo objectForKey:@"aps"];
+        NSDictionary* alert = [aps objectForKey:@"alert"];
+        self.pushInfo = [alert objectForKey:@"body"];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"apns:%@",self.pushInfo] waitUntilDone:NO];
+    }
+}
+
+/* iOS7.0 以后支持APP后台刷新数据，会回调 performFetchWithCompletionHandler 接口*/
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+
+/** APP已经接收到“远程”通知(推送) - 透传推送消息  （滑动通知进入前台）*/
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
+{
+    application.applicationIconBadgeNumber = 0; // 标签
+    NSLog(@"\n>>>[Receive RemoteNotification - Background Fetch]:%@\n\n", userInfo);
+    completionHandler(UIBackgroundFetchResultNewData);
+    //解析APNs通知
+    if(userInfo)
+    {
+        NSDictionary* aps = [userInfo objectForKey:@"aps"];
+        NSDictionary* alert = [aps objectForKey:@"alert"];
+        self.pushInfo = [alert objectForKey:@"body"];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"apns:%@",self.pushInfo] waitUntilDone:NO];
+    }
+}
+
 -(instancetype)init{
     self=[super init];
     if(self){
+        self.isRoot = YES;
         self.accType = ACCTYPE_APP;
         self.terminalType = TERMINAL_TYPE_PHONE;
         [self.terminalType retain];
         self.remoteAccType = ACCTYPE_APP;
         self.remoteTerminalType = TERMINAL_TYPE_ANY;
         [self.remoteTerminalType retain];
-        
+        self.pushInfo = nil;
+        self.pushToken = nil;
         self.mMotionManager = [[CMMotionManager alloc]init];
         self.isGettingToken = NO;
         self.firstCheckNetwork = YES;
+        //self.isKicked = NO;
         self.callBackDispatchQueue=dispatch_queue_create("gcd.uexESurfingRtcCallBackDispatchQueue",NULL);
         [self checkNetWorkReachability];//检测网络切换
         
         NSString* islog = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"enablelog"];
         self.notification = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"notification"];
+        self.pushId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"pushid"];
+        self.pushKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"pushkey"];
+        self.pushMasterSecret = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"pushmastersecret"];
+        if(!self.notification)
+            self.notification = @"callName";
         if([islog isEqualToString:@"1"])
             initCWDebugLog();
         
-        //注册本地推送
-        if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]&&[[[UIDevice currentDevice]systemVersion]floatValue]>=8.0)
+        if ([[[UIDevice currentDevice]systemVersion]floatValue]>=10.0)
         {
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+            //iOS 10 使用以下方法注册，才能得到授权
+            [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert)
+                                  completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                                      // Enable or disable features based on authorization.
+                                  }];
+        }
+        else if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]&&[[[UIDevice currentDevice]systemVersion]floatValue]>=8.0)
+        {
+            //注册本地推送
             [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil]];
-            CWLogDebug(@"registerUserNotificationSettings");
         }
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
     
@@ -162,7 +277,7 @@
             [self.mAccObj doAccRegister:newResult];
         }
     }
-    else if ([self.mAccObj isRegisted])
+    else if ([self.mAccObj isRegisted] /*&& !self.isKicked*/)
     {
         self.isGettingToken = NO;
         [self setLog:@"登录刷新"];
@@ -172,6 +287,8 @@
     {
         [self setLog:@"重新发起登录动作"];
         [self.mAccObj getToken:self.str andType:self.accType andGrant:@"100<200" andAuthType:ACC_AUTH_TO_APPALL];
+        
+        //self.isKicked = NO;
     }
 }
 
@@ -179,6 +296,8 @@
 {
     if (self.mAccObj)
     {
+        if(self.pushId&&self.pushKey&&self.pushMasterSecret)
+            [self.mAccObj setAPNsToken:self.str andPushToken:nil andPushId:self.pushId andPushKey:self.pushKey andPushMaster:self.pushMasterSecret];
         [self.mAccObj doUnRegister];
         [self.mAccObj release];
         self.mAccObj = nil;
@@ -217,35 +336,35 @@
     {
         return 0;
     }
-    if (xy <= 180 && xy > 135)//竖直方向,向右侧倾斜,但未到角度
+    if (xy <= 180 && xy > 135)//头朝上,向右侧倾斜
     {
         return 0;
     }
-    if (xy <= 135 && xy >= 90)//竖直方向,向右倾斜,已经到位
+    if (xy <= 135 && xy >= 90)//头朝右,水平方向,逆时针倾斜
     {
         return 90;
     }
-    if (xy < 90 && xy >= 45) //斜向下方向,尚未到位
+    if (xy < 90 && xy >= 45) //头朝右,水平方向,顺时针倾斜
     {
         return 90;
     }
-    if (xy < 45 && xy >= 0)//头朝下,已到位
+    if (xy < 45 && xy >= 0)//头朝下,向右侧倾斜
     {
         return 180;
     }
-    if (xy < 0 && xy >= -45)//头朝下,未到位
+    if (xy < 0 && xy >= -45)//头朝下,向左侧倾斜
     {
         return 180;
     }
-    if (xy < -45 && xy >= -90)//头朝下,已到位
+    if (xy < -45 && xy >= -90)//头朝左,水平方向,逆时针倾斜
     {
         return 270;
     }
-    if (xy < -90 && xy >= -135)//头朝下,未到位
+    if (xy < -90 && xy >= -135)//头朝左,水平方向,顺时针倾斜
     {
         return 270;
     }
-    if (xy < -135 && xy >= -180)//头朝上,偏左,已到位
+    if (xy < -135 && xy >= -180)//头朝上,向左侧倾斜
     {
         return 0;
     }
@@ -442,10 +561,13 @@
 {
     //后台重连
     [NSRunLoop currentRunLoop];
-    //[self performSelectorOnMainThread:@selector(keepAlive) withObject:nil waitUntilDone:YES];
-    [[UIApplication sharedApplication] setKeepAliveTimeout:600 handler: ^{
-        [self performSelectorOnMainThread:@selector(keepAlive) withObject:nil waitUntilDone:YES];
-    }];
+    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]&&[[[UIDevice currentDevice]systemVersion]floatValue]<=9.0)
+    {
+        //[self performSelectorOnMainThread:@selector(keepAlive) withObject:nil waitUntilDone:YES];
+        [[UIApplication sharedApplication] setKeepAliveTimeout:600 handler: ^{
+            [self performSelectorOnMainThread:@selector(keepAlive) withObject:nil waitUntilDone:YES];
+        }];
+    }
 }
 
 -(void)enterForegroundNotification:(NSNotification *) notification
@@ -556,9 +678,15 @@
     }
     NSString* sReason = obj;
     
+//    if(self.isKicked)
+//        return EC_OK;
+    
     [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"获取token:%d reason:%@",nRspCode,sReason] waitUntilDone:NO];
     if (nRspCode == 200)
     {
+        if(self.pushToken&&self.pushId&&self.pushKey&&self.pushMasterSecret)
+            [self.mAccObj setAPNsToken:self.str andPushToken:self.pushToken andPushId:self.pushId andPushKey:self.pushKey andPushMaster:self.pushMasterSecret];
+        
         [self setLog:[NSString stringWithFormat:@"登录成功,距下次注册%d秒",nExpire]];
         [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"OK:LOGIN" waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=200" waitUntilDone:NO];
@@ -567,6 +695,8 @@
     {
         [self setLog:[NSString stringWithFormat:@"登录失败:%d:%@",nRspCode,sReason]];
         
+        if(self.pushId&&self.pushKey&&self.pushMasterSecret)
+            [self.mAccObj setAPNsToken:self.str andPushToken:nil andPushId:self.pushId andPushKey:self.pushKey andPushMaster:self.pushMasterSecret];
         //        if (self.mAccObj)
         //        {
         //            [self.mAccObj doUnRegister];
@@ -595,6 +725,12 @@
             [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1004" waitUntilDone:NO];
     }
     
+    return EC_OK;
+}
+
+-(int)onSetAPNsResponse:(NSDictionary*)result  accObj:(AccObj*)accObj
+{
+    CWLogDebug(@"result is %@onCall:%@",result,accObj);
     return EC_OK;
 }
 
@@ -727,17 +863,36 @@
     }
     
     [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
-    if ([self isBackground])
+    if ([self isBackground] && [[[UIDevice currentDevice]systemVersion]floatValue]<10.0)
     {
         [self setCallIncomingFlag:YES];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithInt:callType] forKey:KEY_CALL_TYPE];
         [[NSUserDefaults standardUserDefaults]setObject:uri     forKey:KEY_CALLER];
         
         CWLogDebug(@"self.notification = %@",self.notification);
+        NSMutableString *not = [NSMutableString stringWithString:self.notification];
+        NSRange range = {0,self.notification.length};
         if([self.notification isEqualToString:@"callInfo"])
             makeNotification(@"接听",[NSString stringWithFormat:@"来电:%@",ci],UILocalNotificationDefaultSoundName,YES);
-        else
+        else if([self.notification isEqualToString:@"callName"])
             makeNotification(@"接听",[NSString stringWithFormat:@"来电:%@",accNum],UILocalNotificationDefaultSoundName,YES);
+        else if([self.notification isEqualToString:@"hideNotification"])
+        {
+            CWLogDebug(@"hideNotification");
+        }
+        else if([not rangeOfString:@"callInfo"].length)
+        {
+            [not replaceOccurrencesOfString:@"callInfo" withString:ci options:NSLiteralSearch range:range];
+            makeNotification(@"接听",not,UILocalNotificationDefaultSoundName,YES);
+        }
+        else if([not rangeOfString:@"callName"].length)
+        {
+            [not replaceOccurrencesOfString:@"callName" withString:accNum options:NSLiteralSearch range:range];
+            makeNotification(@"接听",not,UILocalNotificationDefaultSoundName,YES);
+        }
+        else
+            makeNotification(@"接听",not,UILocalNotificationDefaultSoundName,YES);
+        
         return 0;
     }
 //    if (callType == AUDIO_VIDEO || callType == AUDIO_VIDEO_SEND || callType == AUDIO_VIDEO_RECV)
@@ -863,6 +1018,24 @@
     if(kickedBy)//被踢下线
     {
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1500" waitUntilDone:NO];
+        
+        //self.isKicked = YES;
+        if(self.pushId&&self.pushKey&&self.pushMasterSecret)
+            [self.mAccObj setAPNsToken:self.str andPushToken:nil andPushId:self.pushId andPushKey:self.pushKey andPushMaster:self.pushMasterSecret];
+        
+        if (self.mAccObj)
+        {
+            [self.mAccObj doUnRegister];
+            [self.mAccObj release];
+            self.mAccObj = nil;
+            self.mToken = nil;
+            self.mAccountID = nil;
+            if(self.mSDKObj)
+            {
+                [self.mSDKObj release];
+                self.mSDKObj = nil;
+            }
+        }
     }
     else if(multiLogin)//多终端登录
     {

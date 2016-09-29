@@ -9,9 +9,8 @@
 /* Begin PBXBuildFile section */
 		420018781B0D8F5D009EB47B /* EUExESurfingRtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */; };
 		420018991B0D903D009EB47B /* DAPIPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4200187B1B0D903D009EB47B /* DAPIPView.m */; };
-		5BE9F0391D6FD43700282229 /* libtyrtcsdk_arm64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BE9F0371D6FD43700282229 /* libtyrtcsdk_arm64.a */; };
-		5BE9F03A1D6FD43700282229 /* libtyrtcsdk_armv7.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BE9F0381D6FD43700282229 /* libtyrtcsdk_armv7.a */; };
 		EB2C363B1C507C5F009C523A /* MySingletonRTC.m in Sources */ = {isa = PBXBuildFile; fileRef = EB2C363A1C507C5F009C523A /* MySingletonRTC.m */; };
+		EBB275D21D9A5E570083D449 /* libtyrtcsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBB275D11D9A5E4D0083D449 /* libtyrtcsdk.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -59,10 +58,9 @@
 		420018B01B0DA6EB009EB47B /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
 		420018B11B0DA6EB009EB47B /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
 		420018B21B0DA6EB009EB47B /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
-		5BE9F0371D6FD43700282229 /* libtyrtcsdk_arm64.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libtyrtcsdk_arm64.a; sourceTree = "<group>"; };
-		5BE9F0381D6FD43700282229 /* libtyrtcsdk_armv7.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libtyrtcsdk_armv7.a; sourceTree = "<group>"; };
 		EB2C36391C507C5F009C523A /* MySingletonRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MySingletonRTC.h; sourceTree = "<group>"; };
 		EB2C363A1C507C5F009C523A /* MySingletonRTC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MySingletonRTC.m; sourceTree = "<group>"; };
+		EBB275D11D9A5E4D0083D449 /* libtyrtcsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtyrtcsdk.a; path = EUExESurfingRtc/soureCode/lib/libtyrtcsdk.a; sourceTree = "<group>"; };
 		EBB83AFE1C48E5F900B8BA80 /* JSONKitRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKitRTC.h; sourceTree = "<group>"; };
 		EBB83AFF1C48E61400B8BA80 /* MKNetworkEngineRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkEngineRTC.h; sourceTree = "<group>"; };
 		EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkOperationRTC.h; sourceTree = "<group>"; };
@@ -75,8 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BE9F0391D6FD43700282229 /* libtyrtcsdk_arm64.a in Frameworks */,
-				5BE9F03A1D6FD43700282229 /* libtyrtcsdk_armv7.a in Frameworks */,
+				EBB275D21D9A5E570083D449 /* libtyrtcsdk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,9 +83,9 @@
 		420018531B0D8F23009EB47B = {
 			isa = PBXGroup;
 			children = (
-				5BE9F0361D6FD43700282229 /* lib */,
 				4200185E1B0D8F23009EB47B /* EUExESurfingRtc */,
 				4200185D1B0D8F23009EB47B /* Products */,
+				EBB275D01D9A5E430083D449 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -201,14 +198,12 @@
 			path = JSON;
 			sourceTree = "<group>";
 		};
-		5BE9F0361D6FD43700282229 /* lib */ = {
+		EBB275D01D9A5E430083D449 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5BE9F0371D6FD43700282229 /* libtyrtcsdk_arm64.a */,
-				5BE9F0381D6FD43700282229 /* libtyrtcsdk_armv7.a */,
+				EBB275D11D9A5E4D0083D449 /* libtyrtcsdk.a */,
 			);
-			name = lib;
-			path = EUExESurfingRtc/soureCode/lib;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -366,12 +361,13 @@
 				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = NO;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc/lib",
 					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/lib",
 				);
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = uexESurfingRtc;
 				SKIP_INSTALL = YES;
@@ -384,10 +380,10 @@
 				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = NO;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc/lib",
 					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/lib",
 				);
 				OTHER_LDFLAGS = "-ObjC";

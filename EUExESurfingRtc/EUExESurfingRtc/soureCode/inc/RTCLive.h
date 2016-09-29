@@ -48,6 +48,17 @@ typedef enum
 #define RTCLivePlayerPlaybackErrorNotification     @"PlaybackError"     //当播放器发生错误时,发送本通知 ￼
 #define RTCLiveRtmpPushErrorNotification     @"RtmpPushError"     //当推流发生错误时（如推流断开，网络连接断开）,发送本通知 ￼
 
+//RTCLivePlayerPlaybackErrorNotification返回的错误描述信息如下:
+//@"Unable to open file"
+//@"Unable to find stream information"
+//@"Unable to find stream"
+//@"Unable to find codec"
+//@"Unable to open codec"
+//@"Unable to allocate frame"
+//@"Unable to setup scaler"
+//@"Unable to setup resampler"
+//@"The ability is not supported"
+
 
 @interface RTCLive : NSObject
 {
@@ -55,6 +66,11 @@ typedef enum
 }
 @property(nonatomic,assign)id<RTCLiveCallBackProtocol> Delegate;
 +(NSString*)ECodeToStr:(int)code;
+
+/**
+ *  @return SDK版本号
+ */
++(NSString*)RTCLiveVersion;
 
 /**
  *  对象初始化
@@ -100,6 +116,18 @@ typedef enum
 -(id)playMedia:(NSString *)mediaPath bounds:(CGRect)bounds;
 
 /**
+ *  暂停播放直播
+ *  @return EC_OK或者错误码
+ */
+-(int)pausePlayMedia;
+
+/**
+ *  继续播放直播
+ */
+-(int)resumePlayMedia;
+
+
+/**
  *  停止播放直播
  *  @return EC_OK或者错误码
  */
@@ -112,16 +140,16 @@ typedef enum
  *  @param height             视频高度
  * 支持的分辨率如下：
  * width*height     width*height   比例
- * 352x288          288x352     -- 11:9
- * 704x576          576x704     -- 11:9
- * 192x144          144x192     -- 12:9(4:3)
- * 480x360          360x480     -- 12:9(4:3)
- * 640x480          480x640     -- 12:9(4:3)
- * 1280x960         960x1280    -- 12:9(4:3)
- * 640x360          360x640     -- 16:9
- * 960x540          540x960     -- 16:9
- * 1280x720         720x1280    -- 16:9
- * 1920x1080        1080x1920   -- 16:9
+ * 352x288(支持)          288x352(支持)           -- 11:9
+ * 704x576(支持)          576x704(支持)           -- 11:9
+ * 192x144(支持)          144x192(支持)           -- 12:9(4:3)
+ * 480x360(支持)          360x480(支持)           -- 12:9(4:3)
+ * 640x480(支持)          480x640(支持)           -- 12:9(4:3)
+ * 1280x960(支持)         960x1280(支持)          -- 12:9(4:3)
+ * 640x360(支持)          360x640(支持)           -- 16:9
+ * 960x540(支持)          540x960(支持)           -- 16:9
+ * 1280x720(支持)         720x1280(支持)          -- 16:9
+ * 1920x1080(支持)        1080x1920(支持)         -- 16:9
  *  @param videoFramerate     视频帧率
  *  @param cameraId           摄像头选择：0 后置摄像头，1 前置摄像头
  *  @param videoCodec         编码器选择：0 硬件编码，1 软件编码
