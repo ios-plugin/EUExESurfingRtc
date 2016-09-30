@@ -35,8 +35,51 @@
 //                                                   object:nil];
         
         //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AcceptNotification:) name:@"ACCEPTED_EVENT" object:nil];
+        
+        if(self.mgr.pushInfo && self.mgr.isRoot)
+        {
+            self.mgr.isRoot = NO;
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"apns:%@",self.mgr.pushInfo] waitUntilDone:NO];
+        }
     }
     return self;
+}
+
++ (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions];
+    
+    return YES;
+}
+
++ (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings];
+}
+
++ (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken];
+}
+
++(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error];
+}
+
++ (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo];
+}
+
++ (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler];
+}
+
++ (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
+{
+    [[MySingletonRTC sharedInstance] application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler];
 }
 
 //-(void)AcceptNotification:(NSNotification *)notification
@@ -112,13 +155,13 @@
         self.mgr.appkey =[inArgument objectAtIndex:0];
         self.mgr.appid = [inArgument objectAtIndex:1];
         
-        if ([self.mgr.appkey intValue]>0||[self.mgr.appid intValue]>0)
-        {
-            [self jsSuccessWithName:@"uexESurfingRtc.cbSetAppKeyAndAppId" opId:0 dataType:0 strData:@"OK"];
-
-        }else{
-            [self jsSuccessWithName:@"uexESurfingRtc.cbSetAppKeyAndAppId" opId:0 dataType:0 strData:@"ERROR:PARM_ERROR"];
-        }
+//        if ([self.mgr.appkey intValue]>0||[self.mgr.appid intValue]>0)
+//        {
+//            [self jsSuccessWithName:@"uexESurfingRtc.cbSetAppKeyAndAppId" opId:0 dataType:0 strData:@"OK"];
+//
+//        }else{
+//            [self jsSuccessWithName:@"uexESurfingRtc.cbSetAppKeyAndAppId" opId:0 dataType:0 strData:@"ERROR:PARM_ERROR"];
+//        }
     }
 }
 
@@ -227,7 +270,7 @@
     {
         NSString* remoteuserID=  [inArgument objectAtIndex:0];
         SDK_ACCTYPE remoteAccType = ACCTYPE_APP;//(SDK_ACCTYPE)[paramDict integerValueForKey:@"remoteacctype"  defaultValue:10];
-        NSString* remoteTerminalType = @"Any";// [paramDict objectForKey:@"remoteterminaltype"];
+        NSString* remoteTerminalType = TERMINAL_TYPE_ANY;// [paramDict objectForKey:@"remoteterminaltype"];
         NSString* message = [inArgument objectAtIndex:1];
         if(!self.mgr.mSDKObj)
         {
@@ -373,7 +416,7 @@
         }
         
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
-        if (self.mgr.mCallObj.CallMedia == MEDIA_TYPE_AUDIO)
+        if (self.mgr.accepptType == AUDIO)
         {
             
             [self.mgr.mCallObj doAcceptCall:[NSNumber numberWithInt:self.mgr.accepptType]];
@@ -508,7 +551,7 @@
     
     [self.mgr.mCallObj doSnapImage];
     
-    [self callBackMethodSuccess:[NSString stringWithFormat:@"%@",@"/private /var/ mobile/Media /DCIM"]];
+    [self callBackMethodSuccess:[NSString stringWithFormat:@"%@",@"/private/var/mobile/Media/DCIM"]];
     
     return;
 }

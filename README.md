@@ -13,7 +13,7 @@
 ![](http://plugin.appcan.cn/pluginimg/092421w2015m8g12fq.png)![](http://plugin.appcan.cn/pluginimg/092429c2015o8l12bo.png)![](http://plugin.appcan.cn/pluginimg/092437u2015g8e12co.png)
 ## 1.3、开源源码
 插件测试用例与源码下载：[点击](http://plugin.appcan.cn/details.html?id=471_index) 插件中心至插件详情页  
-
+请使用iOS8+定制引擎打包，否则会导致打包失败。
   
 # 2、API概览
 
@@ -378,7 +378,12 @@ iOS3.1.1+
 
 2）iOS支持log开关，$uexESurfingRtc_enablelog$表示是否允许生成log。value值为“1”时表示打印log，“0”为关闭，不配置则默认关闭。开启后会在控制台输出RTC的log信息，并且保存在应用沙盒内的tmp文件夹下。此功能只为了方便开发者调试，正式发布时必须关闭log。
 
-3）iOS支持自定义后台来电通知，$uexESurfingRtc_notification$表示当应用在后台时，来电通知的展现内容。value值为“callName”或“callInfo”二选一，不配置则使用“callName”。当值为“callName”表示通知显示来电号码（即call接口的callName参数），当值为“callInfo”表示显示呼叫附加信息如昵称（即call接口的callInfo参数）。
+3）iOS支持自定义后台来电通知，$uexESurfingRtc_notification$表示当应用在后台时，来电通知的展现内容。value的取值与通知内容的对应关系如下：
+（a）value="callName"，则通知内容="来电：xx"，xx为具体的来电号码（即call接口的callName参数）。
+（b）value="callInfo"，则通知内容="来电：xx"，xx为呼叫附加信息（即call接口的callInfo参数，可以传入昵称等自定义信息）。
+（c）value=任意字符串，则通知内容=value，若value中包含"callName"或"callInfo"字段，则通知内容的相应位置会替换为具体的"callName"或"callInfo"的值。
+（d）value="hideNotification"，则通知内容不显示。
+（e）notification若不配置则默认value为“callName”。
 
 配置示例代码如下：
 ````
