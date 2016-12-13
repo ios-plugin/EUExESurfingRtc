@@ -2,7 +2,12 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-//通知栏消息
+/* 通知栏消息
+*  @param title   标题
+*  @param body  通知内容
+*  @param sound     通知铃声，默认铃声为UILocalNotificationDefaultSoundName，自定义铃声可传入音频文件路径
+*  @param iscall      缺省参数，传入YES即可
+ */
 void makeNotification(NSString* title,NSString* body,NSString* sound,BOOL iscall);
 
 //配置文件的名称（配置文件要放在程序沙盒的document目录下）
@@ -369,8 +374,50 @@ typedef enum {
  *  @return 错误码
  */
 -(int)getGroupList;
-
+/**
+ *  会议录制状态查询
+ *
+ *  @param param   参数
+ *
+ *  @return 错误码
+ */
+-(int)getGroupRecordStatus:(NSDictionary*)param;
+/**
+ *  会议录制文件管理
+ *
+ *  @param param   参数
+ *
+ *  @return 错误码
+ */
+-(int)doManageGroupRecord:(NSDictionary*)param;
 #endif
+/**
+ *  上传本地文件
+ *
+ *  @param param   参数
+ *
+ *  @return 错误码
+ */
+-(int)doUploadFile:(NSDictionary*)param;
+-(int)doCancelUploadFile:(NSString*)path;
+//-(int)doPauseUploadFile;
+//-(int)doResumeUploadFile;
+/**
+ *  本地文件上传状态查询
+ *
+ *  @param param   参数
+ *
+ *  @return 错误码
+ */
+-(int)getUploadFileStatus:(NSDictionary*)param;
+/**
+ *  本地文件上传管理
+ *
+ *  @param param   参数
+ *
+ *  @return 错误码
+ */
+-(int)doManageUploadFile:(NSDictionary*)param;
 
 @end
 
@@ -395,6 +442,15 @@ typedef enum {
  *  @return 错误码
  */
 -(int)onCallMediaCreated:(int)mediaType callObj:(CallObj*)callObj;
+/**
+ *  点对点录音录像回调
+ *
+ *  @param result  录制状态
+ *  @param callObj    呼叫对象
+ *
+ *  @return 错误码
+ */
+-(int)onRecordStatus:(NSDictionary*)result callObj:(CallObj*)callObj;
 /**
  *  网络状态回调
  *

@@ -234,9 +234,24 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                              creator:(NSString*)gvcCreator
                          creatorType:(NSString*)gvcCreatorType
                             filePath:(NSString*)filePath
+                                memo:(NSString*)memo
                                token:(NSString*)token
                    completionHandler:(RespOkBlock) completionBlock
                         errorHandler:(MKNKErrorBlock) errorBlock;
+
+-(MKNetworkOperationRTC*) getUploadFileStatus:(NSString*)httpMethod
+                                       useSSL:(BOOL)useSSL
+                                        appId:(NSString*)appId
+                                       appKey:(NSString*)appKey
+                                      creator:(NSString*)gvcCreator
+                                  creatorType:(NSString*)gvcCreatorType
+                                mediaFileName:(NSString*)mediaFileName
+                                         memo:(NSString*)memo
+                                  matchOption:(int)matchOption
+                                        reqID:(NSString*)reqID
+                                        token:(NSString*)token
+                            completionHandler:(RespOkBlock) completionBlock
+                                 errorHandler:(MKNKErrorBlock) errorBlock;
 
 -(MKNetworkOperationRTC*) UploadFileManagement:(NSString*)httpMethod
                                         useSSL:(BOOL)useSSL
@@ -251,28 +266,4 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                              completionHandler:(RespOkBlock) completionBlock
                                   errorHandler:(MKNKErrorBlock) errorBlock;
 
-//-(MKNetworkOperationRTC*) pushMessage:(NSString*)httpMethod
-//                                useSSL:(BOOL)useSSL
-//                                 appId:(NSString*)appId
-//                                appKey:(NSString*)appKey
-//                               from:(NSString*)from
-//                               sender:(NSString*)sender
-//                terminalType:(NSString*)terminalType
-//                           toList:(NSString*)toList
-//                                msg:(NSString*)msg
-//                                 mode:(int)mode
-//                                  flag:(int)flag
-//                            recepient:(int)recepient
-//                     completionHandler:(RespOkBlock) completionBlock
-//                          errorHandler:(MKNKErrorBlock) errorBlock;
-//
-//-(MKNetworkOperationRTC*) pushStatusQuery:(NSString*)httpMethod
-//                               useSSL:(BOOL)useSSL
-//                                appId:(NSString*)appId
-//                               appKey:(NSString*)appKey
-//                                 msgID:(NSString*)msgID
-//                                    accId:(NSString*)accId
-//                    terminalType:(NSString*)terminalType
-//            completionHandler:(RespOkBlock) completionBlock
-//                         errorHandler:(MKNKErrorBlock) errorBlock;
 @end
