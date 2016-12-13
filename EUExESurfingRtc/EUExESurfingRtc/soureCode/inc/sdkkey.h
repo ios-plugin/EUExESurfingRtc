@@ -5,14 +5,17 @@
 #define SDK_HAS_GROUP 1 //此标志表示您的SDK是否支持多人会话
 
 //登录字段
+#define KEY_ACC_NAME                                          @"acc.name"
 #define KEY_ACC_SRTP                                            @"srtp.mode"
 #define KEY_REG_EXPIRES                                       @"reg.expires"
 #define KEY_REG_RSP_REASON                             @"reg.rsp.reason"
 #define KEY_REG_RSP_CODE                                  @"reg.rsp.code"
 #define KEY_REASON                                                @"reason"
 #define KEY_RESULT                                                 @"code"
+#define KEY_REQID                                                    @"requestId"
 #define KEY_CAPABILITYTOKEN                             @"capabilityToken"
 #define KEY_RTCACCOUNTID                                 @"rtcaccountID"
+#define KEY_ACC_ID                                                 @"acc.id"
 //通话字段
 #define KEY_CALL_INFO                                            @"ci"
 #define KEY_CALL_MIME                                           @"mime"
@@ -144,8 +147,8 @@ typedef enum _SDK_ACC_SEARCH_FLAG
 //呼叫回调状态
 typedef enum _SDK_CALLBACK_TYPE
 {
-    SDK_CALLBACK_CLOSED = 0,//通话中被对方挂断
-    SDK_CALLBACK_FAILED,//呼叫中被对方挂断
+    SDK_CALLBACK_CLOSED = 0,//通话结束
+    SDK_CALLBACK_FAILED,//通话失败
     SDK_CALLBACK_CANCELED,//多终端登录，一端取消接听
     SDK_CALLBACK_ACCEPTED,//呼叫被接听
     SDK_CALLBACK_RING,//正在发起呼叫
@@ -212,6 +215,7 @@ typedef enum _SDK_GROUP_OPT
     SDK_GROUP_CLOSE = 106, //关闭群组
     SDK_GROUP_JOIN = 107,//主动参会
     SDK_GROUP_VIDEO = 108, //管理视频分屏
+    SDK_GROUP_RECORD = 109,//录音录像
 }SDK_GROUP_OPT;
 
 //多人会话类型

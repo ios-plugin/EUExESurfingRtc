@@ -8,6 +8,16 @@
 		<string>$uexESurfingRtc_enablelog$</string>
 		<key>notification</key>
 		<string>$uexESurfingRtc_notification$</string>
+		<key>notificationGrp</key>
+		<string>$uexESurfingRtc_notificationGrp$</string>
+		<key>enableAPNs</key>
+		<string>$uexESurfingRtc_enableAPNs$</string>
+		<key>pushid</key>
+		<string>$uexESurfingRtc_pushid$</string>
+		<key>pushkey</key>
+		<string>$uexESurfingRtc_pushkey$</string>
+		<key>pushmastersecret</key>
+		<string>$uexESurfingRtc_pushmastersecret$</string>
 	</dict>
 </dict>
 </plist>
