@@ -35,8 +35,13 @@
     {
         NSDictionary* notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
         NSDictionary* aps = [notification objectForKey:@"aps"];
-        NSDictionary* alert = [aps objectForKey:@"alert"];
-        self.pushInfo = [alert objectForKey:@"body"];
+        if([[aps objectForKey:@"alert"] isKindOfClass:[NSDictionary class]])
+        {
+            NSDictionary* alert = [aps objectForKey:@"alert"];
+            [self.pushInfo release];
+            self.pushInfo = [alert objectForKey:@"body"];
+            [self.pushInfo retain];
+        }
     }
     
     // 注册APNS
@@ -101,9 +106,14 @@
     if(userInfo)
     {
         NSDictionary* aps = [userInfo objectForKey:@"aps"];
-        NSDictionary* alert = [aps objectForKey:@"alert"];
-        self.pushInfo = [alert objectForKey:@"body"];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
+        if([[aps objectForKey:@"alert"] isKindOfClass:[NSDictionary class]])
+        {
+            NSDictionary* alert = [aps objectForKey:@"alert"];
+            [self.pushInfo release];
+            self.pushInfo = [alert objectForKey:@"body"];
+            [self.pushInfo retain];
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
+        }
     }
 }
 
@@ -119,13 +129,26 @@
     application.applicationIconBadgeNumber = 0; // 标签
     NSLog(@"\n>>>[Receive RemoteNotification - Background Fetch]:%@\n\n", userInfo);
     completionHandler(UIBackgroundFetchResultNewData);
-    //解析APNs通知
-    if(userInfo)
+    
+    if (application.applicationState == UIApplicationStateActive) {
+        NSLog(@"active");
+        //程序当前正处于前台
+    }
+    else
     {
-        NSDictionary* aps = [userInfo objectForKey:@"aps"];
-        NSDictionary* alert = [aps objectForKey:@"alert"];
-        self.pushInfo = [alert objectForKey:@"body"];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
+        //解析APNs通知
+        if(userInfo)
+        {
+            NSDictionary* aps = [userInfo objectForKey:@"aps"];
+            if([[aps objectForKey:@"alert"] isKindOfClass:[NSDictionary class]])
+            {
+                NSDictionary* alert = [aps objectForKey:@"alert"];
+                [self.pushInfo release];
+                self.pushInfo = [alert objectForKey:@"body"];
+                [self.pushInfo retain];
+                [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
+            }
+        }
     }
 }
 
@@ -153,7 +176,8 @@
         self.remoteAccType = ACCTYPE_APP;
         self.remoteTerminalType = TERMINAL_TYPE_ANY;
         [self.remoteTerminalType retain];
-        self.pushInfo = nil;
+        self.pushInfo = @"";
+        [self.pushInfo retain];
         self.pushToken = nil;
         self.mSDKObj = nil;
         self.mAccObj = nil;
@@ -162,7 +186,6 @@
         self.callID = @"";
         [self.callID retain];
         self.grpType = SDK_GROUP_CHAT_AUDIO;
-        //self.isKicked = NO;
         self.isViewSwitch = NO;
         self.mMotionManager = [[CMMotionManager alloc]init];
         self.isGettingToken = NO;
@@ -199,6 +222,7 @@
             [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil]];
         }
         
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
@@ -317,7 +341,7 @@
             [self.mAccObj doAccRegister:newResult];
         }
     }
-    else if ([self.mAccObj isRegisted] /*&& !self.isKicked*/)
+    else if ([self.mAccObj isRegisted])
     {
         self.isGettingToken = NO;
         [self setLog:@"登录刷新"];
@@ -327,8 +351,6 @@
     {
         [self setLog:@"重新发起登录动作"];
         [self.mAccObj getToken:self.userID andType:self.accType andGrant:@"100<200<301<302<303<304<400" andAuthType:ACC_AUTH_TO_APPALL];
-        
-        //self.isKicked = NO;
     }
 }
 
@@ -342,6 +364,7 @@
         [self.mAccObj release];
         self.mAccObj = nil;
         self.mToken = nil;
+        [self.mAccountID release];
         self.mAccountID = nil;
         CWLogDebug(@"注销完毕");
     }
@@ -350,6 +373,36 @@
         [self.mSDKObj release];
         self.mSDKObj = nil;
         CWLogDebug(@"release完毕");
+    }
+}
+
+-(void)reCallRequest
+{
+    if(!self.mSDKObj)
+    {
+        return;
+    }
+    
+    if(self.pushInfo && ![self.pushInfo isEqualToString:@""] && !self.mCallObj)
+    {
+        NSArray* info = [self.pushInfo componentsSeparatedByString:@" "];
+        info = [[info objectAtIndex:1] componentsSeparatedByString:@" "];
+        NSArray *num = [NSArray arrayWithObjects:[info objectAtIndex:0],nil];
+        NSString* numberString = [num componentsJoinedByString:@""];
+        
+        if(numberString && ![numberString isEqualToString:@""])
+        {
+            NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 numberString,KEY_CALLED,
+                                 [NSNumber numberWithInt:self.remoteAccType],KEY_CALL_REMOTE_ACC_TYPE,
+                                 self.remoteTerminalType,KEY_CALL_REMOTE_TERMINAL_TYPE,
+                                 @"reCallRequest",KEY_CALL_INFO,
+                                 nil];
+            [self.mAccObj doSendIM:dic];
+            [self.pushInfo release];
+            self.pushInfo = @"";
+            [self.pushInfo retain];
+        }
     }
 }
 
@@ -483,11 +536,13 @@
 //注册结果回调
 -(int)onRegisterResponse:(NSDictionary*)result  accObj:(AccObj*)accObj
 {
-    self.mToken = [result objectForKey:KEY_CAPABILITYTOKEN];
-    self.mAccountID = [result objectForKey:KEY_RTCACCOUNTID];
     self.isGettingToken = NO;
-    if(self.mToken)
+    if([result objectForKey:KEY_CAPABILITYTOKEN])
     {
+        self.mToken = [result objectForKey:KEY_CAPABILITYTOKEN];
+        [self.mAccountID release];
+        self.mAccountID = [result objectForKey:KEY_RTCACCOUNTID];
+        [self.mAccountID retain];
         NSMutableDictionary *newResult = [NSMutableDictionary dictionaryWithObjectsAndKeys:nil];
         [newResult setObject:self.mToken forKey:KEY_CAPABILITYTOKEN];
         [newResult setObject:self.mAccountID forKey:KEY_RTCACCOUNTID];//形如"账号类型-账号~appid~终端类型@chinartc.com"
@@ -526,9 +581,7 @@
     }
     NSString* sReason = obj;
     
-//    if(self.isKicked)
-//        return EC_OK;
-    
+    CWLogDebug(@"pushInfo:%@",self.pushInfo);
     [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"获取token:%d reason:%@",nRspCode,sReason] waitUntilDone:NO];
     if (nRspCode == 200)
     {
@@ -540,6 +593,8 @@
         [self setLog:[NSString stringWithFormat:@"登录成功,距下次注册%d秒",nExpire]];
         [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"OK:LOGIN" waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=200" waitUntilDone:NO];
+        
+         [self reCallRequest];
     }
     else
     {
@@ -636,8 +691,27 @@
         }
         NSString* accNum = [[NSString stringWithUTF8String:cacc] substringWithRange:NSMakeRange(strindex1+1, strindex2-strindex1-1)];
         
-        [self performSelectorOnMainThread:@selector(cbMessageStatus:) withObject:@"OK:RECEIVE" waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"onReceiveIm:from:%@,msg:%@",accNum,content] waitUntilDone:NO];
+        if([content isEqualToString:@"reCallRequest"])
+        {
+            if(self.mCallObj)
+            {
+                [self.mCallObj doHangupCall];
+                [self.mCallObj setDelegate:self];
+                [self.mCallObj bindAcc:self.mAccObj];
+                
+                if(self.calldic)
+                {
+                    int ret = [self.mCallObj doMakeCall:self.calldic];
+                    [self.calldic release];
+                    self.calldic = nil;
+                }
+            }
+        }
+        else
+        {
+            [self performSelectorOnMainThread:@selector(cbMessageStatus:) withObject:@"OK:RECEIVE" waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"onReceiveIm:from:%@,msg:%@",accNum,content] waitUntilDone:NO];
+        }
     }
     
     return 0;
@@ -785,8 +859,6 @@
     }
     else  if (type == SDK_CALLBACK_CLOSED)
     {
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=200"] waitUntilDone:NO];
         if(self.localVideoView)
         {
             [self.localVideoView removeFromSuperview];
@@ -811,12 +883,16 @@
             [self.mCallObj release];
             self.mCallObj = nil;
         }
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=200"] waitUntilDone:NO];
         [self setCallIncomingFlag:NO];
     }
     else  if (type == SDK_CALLBACK_FAILED || type == SDK_CALLBACK_CANCELED)
     {
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=%d",code] waitUntilDone:NO];
+        [self.pushInfo release];
+        self.pushInfo = @"";
+        [self.pushInfo retain];
+        
         if(self.localVideoView)
         {
             [self.localVideoView removeFromSuperview];
@@ -841,6 +917,11 @@
             [self.mCallObj release];
             self.mCallObj = nil;
         }
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"ConnectionListener:onDisconnect,code=%d",code] waitUntilDone:NO];
+        
+        [self.calldic release];
+        self.calldic = nil;
         [self setCallIncomingFlag:NO];
     }
     
@@ -882,6 +963,47 @@
 {
     CWLogDebug(@"%s result is %@onCall:%@",__FUNCTION__,result,callObj);
     return 0;
+}
+
+-(int)groupMember
+{
+    if(!self.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    int ret = EC_START_IDX;
+    if (self.mCallObj)
+    {
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             [NSNumber numberWithInt:self.isGroupCreator],KEY_GRP_ISCREATOR,
+                             self.callID,KEY_GRP_CALLID,
+                             nil];
+        
+        ret = [self.mCallObj groupCall:SDK_GROUP_GETMEMLIST param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
 }
 
 //通知
@@ -958,8 +1080,8 @@
         if([memberlist[0] objectForKey:KEY_GRP_MBSTATUS])
         {
             NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 accID,@"uri",
-                                 [NSNumber numberWithInt:memberstatus],@"status",
+                                 accID,KEY_GRP_ACCID,
+                                 [NSNumber numberWithInt:memberstatus],KEY_GRP_MBSTATUS,
                                  nil];
             NSError *parseError = nil;
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
@@ -972,15 +1094,20 @@
             NSRange range3 = {0,mutStr.length};
             [mutStr replaceOccurrencesOfString:@"\\" withString:@"" options:NSLiteralSearch range:range3];
             [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:[NSString stringWithFormat:@"statusChangedInfo=%@",mutStr] waitUntilDone:NO];
+            
+            if(!self.isGroupCreator && [accID isEqualToString:self.userID] && memberstatus == 2)
+            {
+                [self groupMember];//被叫加入后查询成员列表
+            }
         }
         else
         {
             NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 accID,@"uri",
-                                 [NSNumber numberWithInt:da],@"da",
-                                 [NSNumber numberWithInt:dv],@"dv",
-                                 [NSNumber numberWithInt:ua],@"ua",
-                                 [NSNumber numberWithInt:uv],@"uv",
+                                 accID,KEY_GRP_ACCID,
+                                 [NSNumber numberWithInt:da],@"downAudioState",
+                                 [NSNumber numberWithInt:dv],@"downVideoState",
+                                 [NSNumber numberWithInt:ua],@"upAudioState",
+                                 [NSNumber numberWithInt:uv],@"upVideoState",
                                  nil];
             NSError *parseError = nil;
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
@@ -1022,49 +1149,45 @@
         {
             int first = 1;
             NSMutableString *list = nil;
+            NSMutableArray *numarr = [NSMutableArray array];
+            NSString *jsonString = nil;
             for(int i = 0; i < [gvcList count]; i++)
             {
                 accID = [gvcList[i] objectForKey:KEY_GRP_CALLID];//id
                 accNum = [gvcList[i] objectForKey:KEY_GRP_NAME];//name
-                
-                //                if(first == 1)
-                //                {
-                //                    accIDList = accID;
-                //                    accNumList = accNum;
-                //                    first = 0;
-                //                }
-                //                else
-                //                {
-                //                    accIDList = [NSString stringWithFormat:@"%@,%@",accIDList,accID];
-                //                    accNumList = [NSString stringWithFormat:@"%@,%@",accNumList,accNum];
-                //                }
-                
                 NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
                                      accID,@"callid",
                                      accNum,@"name",
                                      nil];
-                NSError *parseError = nil;
-                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
-                NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-                NSMutableString *mutStr = [NSMutableString stringWithString:jsonString];
-                NSRange range = {0,jsonString.length};
-                [mutStr replaceOccurrencesOfString:@" " withString:@"" options:NSLiteralSearch range:range];
-                NSRange range2 = {0,mutStr.length};
-                [mutStr replaceOccurrencesOfString:@"\n" withString:@"" options:NSLiteralSearch range:range2];
-                NSRange range3 = {0,mutStr.length};
-                [mutStr replaceOccurrencesOfString:@"\\" withString:@"" options:NSLiteralSearch range:range3];
+                [numarr setObject:dic atIndexedSubscript:i];
                 
-                if(first == 1)
-                {
-                    list = mutStr;
-                    first = 0;
-                }
-                else
-                {
-                    list = [NSMutableString stringWithFormat:@"%@,%@",list,mutStr];
-                }
+//                NSError *parseError = nil;
+//                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
+//                NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+//                NSMutableString *mutStr = [NSMutableString stringWithString:jsonString];
+//                NSRange range = {0,jsonString.length};
+//                [mutStr replaceOccurrencesOfString:@" " withString:@"" options:NSLiteralSearch range:range];
+//                NSRange range2 = {0,mutStr.length};
+//                [mutStr replaceOccurrencesOfString:@"\n" withString:@"" options:NSLiteralSearch range:range2];
+//                NSRange range3 = {0,mutStr.length};
+//                [mutStr replaceOccurrencesOfString:@"\\" withString:@"" options:NSLiteralSearch range:range3];
+//                
+//                if(first == 1)
+//                {
+//                    list = mutStr;
+//                    first = 0;
+//                }
+//                else
+//                {
+//                    list = [NSMutableString stringWithFormat:@"%@,%@",list,mutStr];
+//                }
             }
-            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:[NSString stringWithFormat:@"OK:groupList=%@",list] waitUntilDone:NO];
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:numarr
+                                                               options:kNilOptions
+                                                                 error:nil];
+            jsonString = [[NSString alloc] initWithData:jsonData
+                                               encoding:NSUTF8StringEncoding];
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:[NSString stringWithFormat:@"OK:groupList,list=%@",jsonString] waitUntilDone:NO];
         }
         else
             [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"OK:noGroupList" waitUntilDone:NO];
@@ -1077,7 +1200,6 @@
     {
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1500" waitUntilDone:NO];
         
-        //self.isKicked = YES;
         if(self.isAPNs&&self.pushId&&self.pushKey&&self.pushMasterSecret)
             [self.mAccObj setAPNsToken:self.userID andPushToken:nil andPushId:self.pushId andPushKey:self.pushKey andPushMaster:self.pushMasterSecret];
         
@@ -1087,6 +1209,7 @@
             [self.mAccObj release];
             self.mAccObj = nil;
             self.mToken = nil;
+            [self.mAccountID release];
             self.mAccountID = nil;
             if(self.mSDKObj)
             {
@@ -1102,13 +1225,13 @@
 -(int)onGroupCreate:(NSDictionary*)param withNewCallObj:(CallObj*)newCallObj accObj:(AccObj*)accObj
 {
     CWLogDebug(@"%s result is %@onCall:%@",__FUNCTION__,param,accObj);
-    if(!newCallObj)//如果已在通话中，或上一次通话未释放完全，则新一路来电CallObj为nil
+    
+    if(newCallObj)
     {
-        return 0;
+        self.mCallObj = newCallObj;
+        [self.mCallObj setDelegate:self];
     }
     
-    self.mCallObj = newCallObj;
-    [self.mCallObj setDelegate:self];
     NSString* uri = [param objectForKey:KEY_GRP_CALLID];
     self.isGroupCreator = [[param objectForKey:KEY_GRP_ISCREATOR]intValue];
     self.grpType = [[param objectForKey:KEY_GRP_TYPE]intValue];
@@ -1142,17 +1265,15 @@
         NSString* str = nil;
         if(newCallObj)
         {
-            str = [NSString stringWithFormat:@"DeviceListener:onNewCall,call=%@", mutStr];
+            str = [NSString stringWithFormat:@"onNewGroupCall,call=%@", mutStr];
             [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:str waitUntilDone:NO];
         }
-        //        else
-        //        {
-        //            str = [NSString stringWithFormat:@"DeviceListener:rejectIncomingCall call=%@", @""];
-        //            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:str waitUntilDone:NO];
-        //            return 0;
-        //        }
-        //
-        //        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"OK:INCOMING" waitUntilDone:NO];
+        else
+        {
+            str = [NSString stringWithFormat:@"rejectIncomingCall,call=%@", mutStr];
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:str waitUntilDone:NO];
+            return 0;
+        }
         
         if ([self isBackground] && [[[UIDevice currentDevice]systemVersion]floatValue]<10.0)
         {
@@ -1246,10 +1367,11 @@
     else if(action == 102)
     {
         NSArray *num = [result objectForKey:@"memberInfoList"];
+        NSMutableArray *numarr = [NSMutableArray arrayWithArray:num];
         NSString *accID = nil,*accNum = nil,*list = @"";
+        NSString *jsonString = nil;
         if(num)//查询列表触发
         {
-            list = self.userID;
             for(int i = 0; i < [num count]; i++)
             {
                 accID = [num[i] objectForKey:KEY_GRP_ACCID];//id
@@ -1273,13 +1395,30 @@
                     }
                 }
                 accNum = [[NSString stringWithUTF8String:cacc] substringWithRange:NSMakeRange(strindex1+1, strindex2-strindex1-1)];
+                NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithObjectsAndKeys:nil];
+                [dic setObject:accNum forKey:KEY_GRP_ACCID];
+                [dic setObject:[num[i] objectForKey:@"downAudioState"] forKey:@"downAudioState"];
+                [dic setObject:[num[i] objectForKey:@"downVideoState"] forKey:@"downVideoState"];
+                [dic setObject:[num[i] objectForKey:@"duration"] forKey:@"duration"];
+                [dic setObject:[num[i] objectForKey:@"memberStatus"] forKey:@"memberStatus"];
+                [dic setObject:[num[i] objectForKey:@"role"] forKey:@"role"];
+                [dic setObject:[num[i] objectForKey:@"startTime"] forKey:@"startTime"];
+                [dic setObject:[num[i] objectForKey:@"upAudioState"] forKey:@"upAudioState"];
+                [dic setObject:[num[i] objectForKey:@"upVideoState"] forKey:@"upVideoState"];
+                [numarr setObject:dic atIndexedSubscript:i];
                 
-                if(![accNum isEqual:self.userID]&&[[num[i] objectForKey:KEY_GRP_MBSTATUS] intValue] == 2)
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:numarr
+                                                                   options:kNilOptions
+                                                                     error:nil];
+                jsonString = [[NSString alloc] initWithData:jsonData
+                                                   encoding:NSUTF8StringEncoding];
+                
+                /*if(![accNum isEqual:self.userID]&&[[num[i] objectForKey:KEY_GRP_MBSTATUS] intValue] == 2)
                 {
                     list = [NSString stringWithFormat:@"%@,%@",list,accNum];
-                }
+                }*/
             }
-            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:[NSString stringWithFormat:@"OK:groupMember,list=%@",list] waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:[NSString stringWithFormat:@"OK:groupMember,list=%@",jsonString] waitUntilDone:NO];
         }
         else
             [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:[NSString stringWithFormat:@"ERROR:groupMember,code=%d",code] waitUntilDone:NO];
@@ -1399,13 +1538,6 @@
     return NO;
 }
 
--(BOOL)accObjIsRegisted
-{
-    if (self.mAccObj && [self.mAccObj isRegisted])
-        return  YES;
-    return NO;
-}
-
 -(BOOL)isBackground
 {
     return [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground
@@ -1516,9 +1648,6 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
     else
     {
         CWLogDebug(@"networkChanged to NO");
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1001" waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"pls check network" waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
         [self.mSDKObj onNetworkChanged];//网络断开后销毁网络数据
         
         if(self.mCallObj)//通话被迫结束，销毁通话界面
@@ -1545,6 +1674,9 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
             //            [self.dapiview release];
             //            self.dapiview = nil;
         }
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=-1001" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"pls check network" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
     }
 }
 
@@ -1570,6 +1702,17 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
     [self.mSDKObj onAppEnterBackground];//SDK长连接
 }
 
+-(void)willResignActiveNotification:(NSNotification *) notification
+{
+    if(!self.mCallObj && [[[UIDevice currentDevice]systemVersion]floatValue]>=10.0)
+    {
+        if (self.mAccObj)
+        {
+            self.mAccObj.isBackground = YES;
+        }
+    }
+}
+
 -(void)enterBackgroundNotification:(NSNotification *) notification
 {
     //后台重连
@@ -1585,33 +1728,23 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
 
 -(void)enterForegroundNotification:(NSNotification *) notification
 {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
+        self.mAccObj.isBackground = NO;
+        CWLogDebug(@"AccObj.isBackground = NO");
+        [self reCallRequest];
+    });
     if (!self.mSDKObj || ![self.mSDKObj isInitOk] || !self.mAccObj || ![self.mAccObj isRegisted])
     {
-        //        CWLogDebug(@"isGettingToken:%d",self.isGettingToken);
-        //        if(!self.isGettingToken)
-        //        {
-        //            self.isGettingToken = YES;
-        //            CWLogDebug(@"重新初始化rtc");
-        //            [self doUnRegister];
-        //            [self onSDKInit];
-        //        }
+        CWLogDebug(@"isGettingToken:%d",self.isGettingToken);
+        if(!self.isGettingToken&&![self.userID isEqualToString:@""])
+        {
+            self.isGettingToken = YES;
+            CWLogDebug(@"重新初始化rtc");
+            [self doUnRegister];
+            [self onSDKInit];
+        }
         return;
     }
-    //    if ([self getCallIncomingFlag])
-    //    {
-    //        [self setCallIncomingFlag:NO];
-    //        int callType = [[[NSUserDefaults standardUserDefaults]objectForKey:KEY_CALL_TYPE]intValue];
-    //
-    //        //延时等待应用唤醒后，再创建界面
-    //        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5*NSEC_PER_SEC)),dispatch_get_main_queue(),^
-    //                       {
-    //                           if (callType == AUDIO_VIDEO || callType == AUDIO_VIDEO_SEND || callType == AUDIO_VIDEO_RECV)
-    //                           {
-    //                               [self showLocalView];
-    //                               [self showRemoteView];
-    //                           }
-    //                       });
-    //    }
 }
 
 @end

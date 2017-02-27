@@ -10,17 +10,20 @@
 		420018781B0D8F5D009EB47B /* EUExESurfingRtc.m in Sources */ = {isa = PBXBuildFile; fileRef = 420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */; };
 		420018991B0D903D009EB47B /* DAPIPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4200187B1B0D903D009EB47B /* DAPIPView.m */; };
 		EB2C363B1C507C5F009C523A /* MySingletonRTC.m in Sources */ = {isa = PBXBuildFile; fileRef = EB2C363A1C507C5F009C523A /* MySingletonRTC.m */; };
-		EBB275D21D9A5E570083D449 /* libtyrtcsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBB275D11D9A5E4D0083D449 /* libtyrtcsdk.a */; };
+		EB74E1B61E4BFE360034F062 /* tyrtc.framework in Copy Files (1 item) */ = {isa = PBXBuildFile; fileRef = EBDCF3AF1E4B043F006876CA /* tyrtc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EBDCF3B01E4B043F006876CA /* tyrtc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBDCF3AF1E4B043F006876CA /* tyrtc.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		4200185A1B0D8F23009EB47B /* CopyFiles */ = {
+		4200185A1B0D8F23009EB47B /* Copy Files (1 item) */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
+			dstSubfolderSpec = 10;
 			files = (
+				EB74E1B61E4BFE360034F062 /* tyrtc.framework in Copy Files (1 item) */,
 			);
+			name = "Copy Files (1 item)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -31,21 +34,6 @@
 		420018771B0D8F5D009EB47B /* EUExESurfingRtc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EUExESurfingRtc.m; sourceTree = "<group>"; };
 		4200187A1B0D903D009EB47B /* DAPIPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAPIPView.h; sourceTree = "<group>"; };
 		4200187B1B0D903D009EB47B /* DAPIPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAPIPView.m; sourceTree = "<group>"; };
-		420018811B0D903D009EB47B /* NSAlert+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAlert+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018821B0D903D009EB47B /* NSData+MKBase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+MKBase64.h"; sourceTree = "<group>"; };
-		420018831B0D903D009EB47B /* NSDate+RFC1123.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+RFC1123.h"; sourceTree = "<group>"; };
-		420018841B0D903D009EB47B /* NSDictionary+RequestEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+RequestEncoding.h"; sourceTree = "<group>"; };
-		420018851B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018861B0D903D009EB47B /* UIAlertView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018871B0D903D009EB47B /* UIImageView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		4200188B1B0D903D009EB47B /* MKNetworkKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkKit.h; sourceTree = "<group>"; };
-		4200188D1B0D903D009EB47B /* NSDictionary+RequestEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+RequestEncoding.h"; sourceTree = "<group>"; };
-		4200188E1B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018911B0D903D009EB47B /* tyrtchttpengine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tyrtchttpengine.h; sourceTree = "<group>"; };
-		420018921B0D903D009EB47B /* UIAlertView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
-		420018931B0D903D009EB47B /* sdkerrorcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdkerrorcode.h; sourceTree = "<group>"; };
-		420018941B0D903D009EB47B /* sdkkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdkkey.h; sourceTree = "<group>"; };
-		420018951B0D903D009EB47B /* sdkobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdkobj.h; sourceTree = "<group>"; };
 		420018A61B0DA6B6009EB47B /* EUExBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUExBase.h; sourceTree = "<group>"; };
 		420018A71B0DA6B6009EB47B /* EUExBaseDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUExBaseDefine.h; sourceTree = "<group>"; };
 		420018A81B0DA6B6009EB47B /* EUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUtility.h; sourceTree = "<group>"; };
@@ -60,12 +48,7 @@
 		420018B21B0DA6EB009EB47B /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
 		EB2C36391C507C5F009C523A /* MySingletonRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MySingletonRTC.h; sourceTree = "<group>"; };
 		EB2C363A1C507C5F009C523A /* MySingletonRTC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MySingletonRTC.m; sourceTree = "<group>"; };
-		EBB275D11D9A5E4D0083D449 /* libtyrtcsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtyrtcsdk.a; path = EUExESurfingRtc/soureCode/lib/libtyrtcsdk.a; sourceTree = "<group>"; };
-		EBB83AFE1C48E5F900B8BA80 /* JSONKitRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKitRTC.h; sourceTree = "<group>"; };
-		EBB83AFF1C48E61400B8BA80 /* MKNetworkEngineRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkEngineRTC.h; sourceTree = "<group>"; };
-		EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKNetworkOperationRTC.h; sourceTree = "<group>"; };
-		EBB83B011C48E62100B8BA80 /* ReachabilityRTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReachabilityRTC.h; sourceTree = "<group>"; };
-		EBFB1BA71D127B3900857C68 /* RTCLive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTCLive.h; sourceTree = "<group>"; };
+		EBDCF3AF1E4B043F006876CA /* tyrtc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = tyrtc.framework; path = EUExESurfingRtc/soureCode/tyrtc.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBB275D21D9A5E570083D449 /* libtyrtcsdk.a in Frameworks */,
+				EBDCF3B01E4B043F006876CA /* tyrtc.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,68 +101,8 @@
 				4200187A1B0D903D009EB47B /* DAPIPView.h */,
 				4200187B1B0D903D009EB47B /* DAPIPView.m */,
 				420018A91B0DA6EB009EB47B /* JSON */,
-				4200187C1B0D903D009EB47B /* inc */,
 			);
 			path = soureCode;
-			sourceTree = "<group>";
-		};
-		4200187C1B0D903D009EB47B /* inc */ = {
-			isa = PBXGroup;
-			children = (
-				EBFB1BA71D127B3900857C68 /* RTCLive.h */,
-				4200187F1B0D903D009EB47B /* mknetwork */,
-				420018931B0D903D009EB47B /* sdkerrorcode.h */,
-				420018941B0D903D009EB47B /* sdkkey.h */,
-				420018951B0D903D009EB47B /* sdkobj.h */,
-			);
-			path = inc;
-			sourceTree = "<group>";
-		};
-		4200187F1B0D903D009EB47B /* mknetwork */ = {
-			isa = PBXGroup;
-			children = (
-				EBB83AFF1C48E61400B8BA80 /* MKNetworkEngineRTC.h */,
-				EBB83B001C48E61400B8BA80 /* MKNetworkOperationRTC.h */,
-				420018801B0D903D009EB47B /* Categories */,
-				420018881B0D903D009EB47B /* JSONKit */,
-				4200188B1B0D903D009EB47B /* MKNetworkKit.h */,
-				4200188D1B0D903D009EB47B /* NSDictionary+RequestEncoding.h */,
-				4200188E1B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */,
-				4200188F1B0D903D009EB47B /* Reachability */,
-				420018911B0D903D009EB47B /* tyrtchttpengine.h */,
-				420018921B0D903D009EB47B /* UIAlertView+MKNetworkKitAdditions.h */,
-			);
-			path = mknetwork;
-			sourceTree = "<group>";
-		};
-		420018801B0D903D009EB47B /* Categories */ = {
-			isa = PBXGroup;
-			children = (
-				420018811B0D903D009EB47B /* NSAlert+MKNetworkKitAdditions.h */,
-				420018821B0D903D009EB47B /* NSData+MKBase64.h */,
-				420018831B0D903D009EB47B /* NSDate+RFC1123.h */,
-				420018841B0D903D009EB47B /* NSDictionary+RequestEncoding.h */,
-				420018851B0D903D009EB47B /* NSString+MKNetworkKitAdditions.h */,
-				420018861B0D903D009EB47B /* UIAlertView+MKNetworkKitAdditions.h */,
-				420018871B0D903D009EB47B /* UIImageView+MKNetworkKitAdditions.h */,
-			);
-			path = Categories;
-			sourceTree = "<group>";
-		};
-		420018881B0D903D009EB47B /* JSONKit */ = {
-			isa = PBXGroup;
-			children = (
-				EBB83AFE1C48E5F900B8BA80 /* JSONKitRTC.h */,
-			);
-			path = JSONKit;
-			sourceTree = "<group>";
-		};
-		4200188F1B0D903D009EB47B /* Reachability */ = {
-			isa = PBXGroup;
-			children = (
-				EBB83B011C48E62100B8BA80 /* ReachabilityRTC.h */,
-			);
-			path = Reachability;
 			sourceTree = "<group>";
 		};
 		420018A91B0DA6EB009EB47B /* JSON */ = {
@@ -201,7 +124,7 @@
 		EBB275D01D9A5E430083D449 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EBB275D11D9A5E4D0083D449 /* libtyrtcsdk.a */,
+				EBDCF3AF1E4B043F006876CA /* tyrtc.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -215,7 +138,7 @@
 			buildPhases = (
 				420018581B0D8F23009EB47B /* Sources */,
 				420018591B0D8F23009EB47B /* Frameworks */,
-				4200185A1B0D8F23009EB47B /* CopyFiles */,
+				4200185A1B0D8F23009EB47B /* Copy Files (1 item) */,
 			);
 			buildRules = (
 			);
@@ -361,14 +284,18 @@
 				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = NO;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				ENABLE_BITCODE = NO;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
+				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/lib",
+					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode",
 				);
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/EUExESurfingRtc/soureCode/tyrtc.framework/Headers";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = uexESurfingRtc;
 				SKIP_INSTALL = YES;
 			};
@@ -380,13 +307,17 @@
 				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = NO;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				ENABLE_BITCODE = NO;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/EUExESurfingRtc/soureCode/inc";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
+				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode/lib",
+					"$(PROJECT_DIR)/EUExESurfingRtc/soureCode",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/EUExESurfingRtc/soureCode/tyrtc.framework/Headers";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = uexESurfingRtc;
 				SKIP_INSTALL = YES;
 			};
