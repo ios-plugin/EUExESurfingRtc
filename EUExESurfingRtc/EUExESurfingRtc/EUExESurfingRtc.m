@@ -14,32 +14,24 @@
 #import <AVFoundation/AVCaptureSession.h>
 #import "DAPIPView.h"
 
-#define APP_USER_AGENT      @"RTC_AppCan"
-
 @implementation EUExESurfingRtc
 
 @synthesize mgr;
 
-//每次open一个新窗口触发插件接口时，会进入一次此函数
+//每次open一个新窗口并触发插件接口时，会进入一次此函数
 - (id)initWithBrwView:(EBrowserView *)eInBrwView
 {
     self = [super initWithBrwView:eInBrwView];
     if (self) {
         self.mgr=[MySingletonRTC sharedInstance];
         
-//        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onRecvEvent:) name:@"NOTIFY_EVENT" object:nil];
-        
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(ShowViewNotification:)
-//                                                     name:@"ShowViewNotification"
-//                                                   object:nil];
-        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onRecvEvent:) name:@"NOTIFY_EVENT" object:nil];
         //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AcceptNotification:) name:@"ACCEPTED_EVENT" object:nil];
         
-        if(self.mgr.pushInfo && self.mgr.isRoot)
+        if(self.mgr.pushInfo && ![self.mgr.pushInfo isEqualToString:@""] && self.mgr.isRoot)
         {
             self.mgr.isRoot = NO;
-            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"apns:%@",self.mgr.pushInfo] waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.mgr.pushInfo] waitUntilDone:NO];
         }
     }
     return self;
@@ -62,7 +54,7 @@
     [[MySingletonRTC sharedInstance] application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken];
 }
 
-+(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
++ (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
     [[MySingletonRTC sharedInstance] application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error];
 }
@@ -133,6 +125,14 @@
     });
 }
 
+-(void)cbGroupStatus:(NSString*)senser
+{
+    NSString* jsString = [NSString stringWithFormat:@"uexESurfingRtc.cbGroupStatus(\"0\",\"0\",\'%@\');",senser];
+    dispatch_async(self.mgr.callBackDispatchQueue, ^(void){
+        [EUtility evaluatingJavaScriptInRootWnd:jsString];
+    });
+}
+
 -(void)callBackMethodSuccess:(NSString *)jsString{
     if (self.meBrwView) {
         jsString = [NSString stringWithFormat:@"uexESurfingRtc.cbRemotePicPath(\"0\",\"0\",\'%@\');",jsString];
@@ -150,10 +150,15 @@
 -(void)setAppKeyAndAppId:(NSMutableArray *)inArgument{
     
     if ([inArgument isKindOfClass:[NSMutableArray class]] && [inArgument count] == 2){
-        NSLog(@"inArgument---->>>%@",inArgument);
         
         self.mgr.appkey =[inArgument objectAtIndex:0];
         self.mgr.appid = [inArgument objectAtIndex:1];
+        
+        if(!self.mgr.appkey || !self.mgr.appid || [self.mgr.appkey isEqualToString:@""] || [self.mgr.appkey isEqualToString:@""])
+        {
+            [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return;
+        }
         
 //        if ([self.mgr.appkey intValue]>0||[self.mgr.appid intValue]>0)
 //        {
@@ -168,16 +173,26 @@
 //登录接口
 -(void)login:(NSMutableArray*)inArgument
 {    
-    if ([inArgument isKindOfClass:[NSMutableArray class]] && [inArgument count] == 2)
+    if ([inArgument isKindOfClass:[NSMutableArray class]]/* && [inArgument count] == 2*/)
     {
-        NSLog(@"login-----appid----->>>%d...appkey____--->>>>%d",[self.mgr.appid intValue],[self.mgr.appkey intValue]);
+        NSLog(@"login-----appid----->>>%@...appkey____--->>>>%@",self.mgr.appid,self.mgr.appkey);
         
         if ([self.mgr.appkey intValue] !=0||[self.mgr.appid intValue]!=0)
         {
             NSString* number = [inArgument objectAtIndex:1];
             NSLog(@"username:---->>>>>%@",number);
-            NSString * infoStr = [inArgument objectAtIndex:0];
+            if(!number || [number isEqualToString:@""])
+            {
+                [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+                return;
+            }
             
+            NSString * infoStr = [inArgument objectAtIndex:0];
+            if(!infoStr || [infoStr isEqualToString:@""])
+            {
+                [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+                return;
+            }
             NSDictionary * dic = [infoStr JSONValue];
             NSLog(@"view:---->>>>>%@",dic);
             NSDictionary * dict = [dic objectForKey:@"localView"];
@@ -191,7 +206,10 @@
             self.mgr.y1 = [[dictt objectForKey:@"y"]intValue];
             self.mgr.width1 = [[dictt objectForKey:@"w"]intValue];
             self.mgr.height1 = [[dictt objectForKey:@"h"]intValue];
-            self.mgr.str = number;
+            self.mgr.userID = number;
+            
+            if([inArgument count]>2)
+                self.mgr.nickName = [inArgument objectAtIndex:2];
             
             [self.mgr onSDKInit];
             
@@ -244,17 +262,28 @@
             
             if (self.mgr.Resolutions ==0){
                 
-                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:1]];
+                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:3]];
                 
             }else if (self.mgr.Resolutions ==1) {
                 
-                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:3]];
+                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:1]];
                 
             } else if (self.mgr.Resolutions ==2) {
                 
-                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:5]];
+                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:4]];
                 
-            }else{
+            }
+            else if (self.mgr.Resolutions ==3){
+                
+                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:6]];
+            
+            }
+            else if (self.mgr.Resolutions ==4){
+                
+                [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:7]];
+                
+            }
+            else{
                 
                 [self.mgr.mSDKObj setVideoAttr:[NSNumber numberWithInt:3]];
                 
@@ -321,11 +350,18 @@
         
         self.mgr.callName =  [inArgument objectAtIndex:1];
         if(!self.mgr.callName || [self.mgr.callName isEqualToString:@""])
+        {
+            [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
             return;
+        }
         
-        NSString* callinfo = [inArgument objectAtIndex:2];
-        if(!callinfo)
-            callinfo = @"";
+        NSString* callinfo = @"";
+        if([inArgument count] == 3)
+        {
+            callinfo = [inArgument objectAtIndex:2];
+            if(!callinfo)
+                callinfo = @"";
+        }
         
         if(!self.mgr.mSDKObj)
         {
@@ -365,8 +401,9 @@
                                  self.mgr.remoteTerminalType,KEY_CALL_REMOTE_TERMINAL_TYPE,
                                  callinfo,KEY_CALL_INFO,
                                  nil];
-            NSLog(@"发送信息=======>>>%@",dic);
             int ret = [self.mgr.mCallObj doMakeCall:dic];
+            self.mgr.calldic = [NSMutableDictionary dictionaryWithDictionary:dic];
+            [self.mgr.calldic retain];
             if (EC_OK > ret)
             {
                 if (self.mgr.mCallObj)
@@ -392,6 +429,9 @@
 {
     if ([inArgument isKindOfClass:[NSMutableArray class]] && [inArgument count] == 1){
         
+        [self.mgr.pushInfo release];
+        self.mgr.pushInfo = @"";
+        [self.mgr.pushInfo retain];
         NSLog(@"%@",inArgument);
         int jscallType = [[inArgument objectAtIndex:0] intValue];
         if(jscallType == 1)
@@ -416,17 +456,19 @@
         }
         
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
+        [self.mgr.mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
         if (self.mgr.accepptType == AUDIO)
         {
             
             [self.mgr.mCallObj doAcceptCall:[NSNumber numberWithInt:self.mgr.accepptType]];
             [self.mgr setLog:@"音频已接听"];
-            //[mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_SPEAKER];
         }
         else
         {
             [self showRemoteView];
-            [self showLocalView];
+            
+            if(self.mgr.isGroup == 0)
+                [self showLocalView];
             [self.mgr setLog:@"视频已接听"];
             [self.mgr.mCallObj doAcceptCall:[NSNumber numberWithInt:self.mgr.accepptType]];
         }
@@ -444,6 +486,9 @@
         return;
     }
     
+    [self.mgr.pushInfo release];
+    self.mgr.pushInfo = @"";
+    [self.mgr.pushInfo retain];
     [self performSelectorOnMainThread:@selector(cbCallStatus:) withObject:@"OK:NORMAL" waitUntilDone:NO];
     if (self.mgr.mCallObj)
     {
@@ -473,6 +518,8 @@
 //        [self.mgr.dapiview release];
 //        self.mgr.dapiview = nil;
     }
+    [self.mgr.calldic release];
+    self.mgr.calldic = nil;
     [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"call hangup" waitUntilDone:NO];
 }
 
@@ -673,7 +720,7 @@
                    });
 }
 
--(void)switchView:(NSDictionary *)paramDict
+-(void)switchView:(NSMutableArray*)inArgument
 {
     if(!self.mgr.mSDKObj)
     {
@@ -772,10 +819,604 @@
 - (void)showRemoteView
 {
     //远端窗口
-    self.mgr.remoteVideoView = [[IOSDisplay alloc]initWithFrame:CGRectMake(self.mgr.x1,self.mgr.y1, self.mgr.width1, self.mgr.height1)];
+    self.mgr.remoteVideoView = initIOSDisplay(CGRectMake(self.mgr.x1,self.mgr.y1, self.mgr.width1, self.mgr.height1));//[[IOSDisplay alloc]initWithFrame:CGRectMake(self.mgr.x1,self.mgr.y1, self.mgr.width1, self.mgr.height1)];
     self.mgr.remoteVideoView.backgroundColor = [UIColor whiteColor];
     [EUtility brwView:meBrwView  addSubview:self.mgr.remoteVideoView];
 
 }
+
+#if (SDK_HAS_GROUP>0)
+-(int)groupCreate:(NSMutableArray*)inArgument
+{
+    if (self.mgr.mCallObj)
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return 0;
+    }
+    
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    NSString* remoteUri2 = nil;
+    if([[inArgument[0] JSONValue] objectForKey:@"members"] && ![[[inArgument[0] JSONValue] objectForKey:@"members"] isEqualToString:@""])
+        remoteUri2 = [NSString stringWithFormat:@"%@,%@",self.mgr.userID,[[inArgument[0] JSONValue] objectForKey:@"members"]];//账号之间用逗号隔开
+    else
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    SDK_GROUP_TYPE grpType = (SDK_GROUP_TYPE)[[[inArgument[0] JSONValue] objectForKey:@"groupType"]  intValue];
+    NSString* groupname = [[inArgument[0] JSONValue] objectForKey:@"groupName"];
+    NSString* password = [[inArgument[0] JSONValue] objectForKey:@"passWord"];
+    if(!groupname || [groupname isEqualToString:@""] || !password || [password isEqualToString:@""])
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    int max = [[[inArgument[0] JSONValue] objectForKey:@"max"]  intValue];
+    if(max == 0)
+        max = 16;
+    int screenSplit = [[[inArgument[0] JSONValue] objectForKey:@"screenSplit"]  intValue];
+    int lv = [[[inArgument[0] JSONValue] objectForKey:@"lv" ]  intValue];
+    
+    if (grpType == SDK_GROUP_CHAT_VIDEO || grpType == SDK_GROUP_SPEAK_VIDEO || grpType == SDK_GROUP_TWOVOICE_VIDEO)
+    {
+        [self showRemoteView];
+    }
+    else if (grpType == SDK_GROUP_MICROLIVE_VIDEO)
+    {
+        [self showLocalView];
+    }
+    
+    self.mgr.isGroup = 1;
+    int ret = EC_START_IDX;
+    if (!self.mgr.mCallObj)
+    {
+        self.mgr.mCallObj = [[CallObj alloc]init];
+        [self.mgr.mCallObj setDelegate:self.mgr];
+        [self.mgr.mCallObj bindAcc:self.mgr.mAccObj];
+        
+        NSArray* remoteAccArr = [remoteUri2 componentsSeparatedByString:@","];
+        NSUInteger countMem=[remoteAccArr count];
+        NSMutableArray* remoteTypeArr = [NSMutableArray arrayWithObjects:
+                                         [NSNumber numberWithInt:self.mgr.accType],
+                                         nil];
+        for(int i = 1; i<countMem; i++)
+        {
+            [remoteTypeArr addObject:[NSNumber numberWithInt:self.mgr.remoteAccType]];
+        }
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             remoteTypeArr,KEY_CALL_REMOTE_ACC_TYPE,
+                             [NSNumber numberWithInt:grpType],KEY_GRP_TYPE,
+                             groupname,KEY_GRP_NAME,
+                             remoteUri2,KEY_GRP_INVITEELIST,
+                             password,KEY_GRP_PASSWORD,
+                             [NSNumber numberWithInt:1],KEY_GRP_CODEC,//codec格式必须与setVideoCodec设置格式一致
+                             [NSNumber numberWithInt:max],KEY_GRP_MAXMEMBER,
+                             [NSNumber numberWithInt:screenSplit],KEY_GRP_SCREENSPLIT,
+                             [NSNumber numberWithInt:lv],KEY_GRP_LV,
+                             nil];
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_CREATE param:dic];
+        
+        if (EC_OK > ret)
+        {
+            if (self.mgr.mCallObj)
+            {
+                [self.mgr.mCallObj doReleaseCallResource];
+                [self.mgr.mCallObj release];
+                self.mgr.mCallObj = nil;
+            }
+            if(self.mgr.localVideoView)
+            {
+                [self.mgr.localVideoView removeFromSuperview];
+                [self.mgr.localVideoView release];
+                self.mgr.localVideoView = nil;
+            }
+            if(self.mgr.remoteVideoView)
+            {
+                [self.mgr.remoteVideoView removeFromSuperview];
+                [self.mgr.remoteVideoView release];
+                self.mgr.remoteVideoView = nil;
+            }
+            if(self.mgr.dapiview)
+            {
+                [self.mgr.dapiview removeFromSuperview];
+                [self.mgr.dapiview release];
+                self.mgr.dapiview = nil;
+            }
+            
+            CWLogDebug(@"创建会议失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+        //[self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"OK:CALLING" waitUntilDone:NO];
+        [self.mgr.mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
+    }
+    
+    return ret;
+}
+
+-(int)groupMember:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    int ret = EC_START_IDX;
+    if (self.mgr.mCallObj)
+    {
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             [NSNumber numberWithInt:self.mgr.isGroupCreator],KEY_GRP_ISCREATOR,
+                             self.mgr.callID,KEY_GRP_CALLID,
+                             nil];
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_GETMEMLIST param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
+}
+
+-(int)groupInvite:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    NSString* memberList = [inArgument objectAtIndex:0];//账号之间用逗号隔开
+    if(!memberList || [memberList isEqualToString:@""])
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    int ret = EC_START_IDX;
+    if (self.mgr.mCallObj)
+    {
+        NSArray* remoteAccArr = [memberList componentsSeparatedByString:@","];
+        NSUInteger countMem=[remoteAccArr count];
+        NSMutableArray* remoteTypeArr = [NSMutableArray arrayWithObjects:
+                                         nil];
+        for(int i = 0; i<countMem; i++)
+        {
+            [remoteTypeArr addObject:[NSNumber numberWithInt:self.mgr.accType]];
+        }
+        
+        int mode=SDK_GROUP_AUDIO_SENDRECV;//语音群聊
+        if(self.mgr.grpType == 21 || self.mgr.grpType == 22 || self.mgr.grpType == 29)//视频对讲或两方或直播
+            mode = SDK_GROUP_AUDIO_RECVONLY_VIDEO_RECVONLY;
+        else if(self.mgr.grpType == 1 || self.mgr.grpType == 2 || self.mgr.grpType == 9)//语音对讲或两方或直播
+            mode = SDK_GROUP_AUDIO_RECVONLY;
+        else if(self.mgr.grpType == 20 )//视频群聊
+            mode = -1;
+        
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             remoteTypeArr,KEY_CALL_REMOTE_ACC_TYPE,
+                             self.mgr.callID,KEY_GRP_CALLID,
+                             [NSNumber numberWithInt:self.mgr.isGroupCreator],KEY_GRP_ISCREATOR,
+                             memberList,KEY_GRP_INVITEDMBLIST,
+                             [NSNumber numberWithInt:mode],KEY_GRP_MODE,
+                             nil];
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_INVITEMEMLIST param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
+}
+
+- (int)groupList:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    int ret = [self.mgr.mAccObj getGroupList];
+    
+    return ret;
+}
+
+-(int)groupJoin:(NSMutableArray*)inArgument
+{
+    if (self.mgr.mCallObj)
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return 0;
+    }
+    
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    NSString* joinID = [inArgument objectAtIndex:0];//此处填入callID
+    NSString* password = [inArgument objectAtIndex:1];
+    if(!joinID || [joinID isEqualToString:@""] || !password || [password isEqualToString:@""])
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    self.mgr.isGroup = 2;
+    int ret = EC_START_IDX;
+    if (!self.mgr.mCallObj)
+    {
+        self.mgr.mCallObj = [[CallObj alloc]init];
+        [self.mgr.mCallObj setDelegate:self.mgr];
+        [self.mgr.mCallObj bindAcc:self.mgr.mAccObj];
+        
+        int mode=SDK_GROUP_AUDIO_SENDRECV;//语音群聊
+        if(self.mgr.grpType == 21 || self.mgr.grpType == 22 || self.mgr.grpType == 29)//视频对讲或两方或直播
+            mode = SDK_GROUP_AUDIO_RECVONLY_VIDEO_RECVONLY;
+        else if(self.mgr.grpType == 1 || self.mgr.grpType == 2 || self.mgr.grpType == 9)//语音对讲或两方或直播
+            mode = SDK_GROUP_AUDIO_RECVONLY;
+        else if(self.mgr.grpType == 20 )//视频群聊
+            mode = -1;
+        
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             [NSNumber numberWithInt:1],KEY_GRP_JOINONLY,
+                             joinID,KEY_GRP_CALLID,
+                             [NSNumber numberWithInt:mode],KEY_GRP_MODE,
+                             password,KEY_GRP_PASSWORD,
+                             nil];
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_JOIN param:dic];
+        if (EC_OK > ret)
+        {
+            if (self.mgr.mCallObj)
+            {
+                [self.mgr.mCallObj doReleaseCallResource];
+                [self.mgr.mCallObj release];
+                self.mgr.mCallObj = nil;
+            }
+            if(self.mgr.localVideoView)
+            {
+                [self.mgr.localVideoView removeFromSuperview];
+                [self.mgr.localVideoView release];
+                self.mgr.localVideoView = nil;
+            }
+            if(self.mgr.remoteVideoView)
+            {
+                [self.mgr.remoteVideoView removeFromSuperview];
+                [self.mgr.remoteVideoView release];
+                self.mgr.remoteVideoView = nil;
+            }
+            if(self.mgr.dapiview)
+            {
+                [self.mgr.dapiview removeFromSuperview];
+                [self.mgr.dapiview release];
+                self.mgr.dapiview = nil;
+            }
+            
+            CWLogDebug(@"加入会议失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+        [self.mgr.mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
+    }
+    
+    return ret;
+}
+
+-(int)groupKick:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    NSString* memberList = [inArgument objectAtIndex:0];//账号之间用逗号隔开
+    if(!memberList || [memberList isEqualToString:@""])
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    int ret = EC_START_IDX;
+    if (self.mgr.mCallObj)
+    {
+        NSArray* remoteAccArr = [memberList componentsSeparatedByString:@","];
+        NSUInteger countMem=[remoteAccArr count];
+        NSMutableArray* remoteTypeArr = [NSMutableArray arrayWithObjects:
+                                         nil];
+        for(int i = 0; i<countMem; i++)
+        {
+            [remoteTypeArr addObject:[NSNumber numberWithInt:self.mgr.accType]];
+        }
+        
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             remoteTypeArr,KEY_CALL_REMOTE_ACC_TYPE,
+                             [NSNumber numberWithInt:self.mgr.isGroupCreator],KEY_GRP_ISCREATOR,
+                             self.mgr.callID,KEY_GRP_CALLID,
+                             memberList,KEY_GRP_KICKEDMBLIST,
+                             nil];
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_KICKMEMLIST param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
+}
+
+-(int)groupClose:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    int ret = EC_START_IDX;
+    if (self.mgr.mCallObj)
+    {
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.mgr.callID,KEY_GRP_CALLID,
+                             nil];
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_CLOSE param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
+}
+
+-(int)groupMic:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    NSString* member = [inArgument objectAtIndex:0];//账号之间用逗号隔开
+    if(!member || [member isEqualToString:@""])
+    {
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    SDK_GROUP_MICMANAGEMENT mode1 = (SDK_GROUP_MICMANAGEMENT)[[inArgument objectAtIndex:1] intValue];
+    SDK_GROUP_MICMANAGEMENT mode2 = (SDK_GROUP_MICMANAGEMENT)[[inArgument objectAtIndex:2] intValue];
+    
+    int ret = EC_START_IDX;
+    if (self.mgr.mCallObj)
+    {
+        NSArray* remoteAccArr = [member componentsSeparatedByString:@","];
+        NSUInteger countMem=[remoteAccArr count];
+        NSMutableArray* mbOperationList =  [NSMutableArray arrayWithObjects:
+                                            nil];
+        NSMutableArray* remoteTypeArr = [NSMutableArray arrayWithObjects:
+                                         nil];
+        for(int i = 0; i<countMem; i++)
+        {
+            NSDictionary* operationdic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          remoteAccArr[i],KEY_GRP_MEMBER,
+                                          [NSNumber numberWithInt:mode1],KEY_GRP_UPOPERATIONTYPE,
+                                          [NSNumber numberWithInt:mode2],KEY_GRP_DWOPERATIONTYPE,
+                                          nil];
+            [mbOperationList addObject:operationdic];
+            [remoteTypeArr addObject:[NSNumber numberWithInt:self.mgr.remoteAccType]];
+        }
+        
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             remoteTypeArr,KEY_CALL_REMOTE_ACC_TYPE,
+                             [NSNumber numberWithInt:self.mgr.isGroupCreator],KEY_GRP_ISCREATOR,
+                             self.mgr.callID,KEY_GRP_CALLID,
+                             mbOperationList,KEY_GRP_MBOPERATIONLIST,
+                             nil];
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_MIC param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
+}
+
+-(int)groupVideo:(NSMutableArray*)inArgument
+{
+    if(!self.mgr.mSDKObj)
+    {
+        CWLogDebug(@"请先初始化");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    if (!self.mgr.mAccObj)
+    {
+        CWLogDebug(@"请先登录");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNREGISTER" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    int screenSplit = [[[inArgument[0] JSONValue] objectForKey:@"screenSplit"] intValue];
+    int lv = [[[inArgument[0] JSONValue] objectForKey:@"lv"] intValue];
+    int mode = [[[inArgument[0] JSONValue] objectForKey:@"mode"] intValue];
+    NSString* memberToSet = [[inArgument[0] JSONValue] objectForKey:@"memberToSet"];
+    NSString* memberToShow = [[inArgument[0] JSONValue] objectForKey:@"memberToShow"];
+    
+    int ret = EC_START_IDX;
+    if (self.mgr.mCallObj)
+    {
+        NSMutableDictionary* dic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                    self.mgr.callID,KEY_GRP_CALLID,
+                                    [NSNumber numberWithInt:lv],KEY_GRP_LV,//70063only
+                                    [NSNumber numberWithInt:screenSplit],KEY_GRP_SCREENSPLIT,//70063only
+                                    nil];
+        
+        if(mode > 0 && mode <3)
+        {
+            if(mode == 1)//替代
+            {
+                [dic setObject:[NSNumber numberWithInt:4] forKey:KEY_GRP_MBSETSTYLE];
+                if(![memberToSet isEqualToString:@""])
+                    [dic setObject:[NSString stringWithFormat:@"10-%@",memberToSet] forKey:KEY_GRP_MBTOSET];
+                if(![memberToShow isEqualToString:@""])
+                    [dic setObject:[NSString stringWithFormat:@"10-%@",memberToShow] forKey:KEY_GRP_MBTOSHOW];
+            }
+            else if(mode == 2)//最大
+            {
+                [dic setObject:[NSNumber numberWithInt:100] forKey:KEY_GRP_MBSETSTYLE];
+                if(![memberToSet isEqualToString:@""])
+                    [dic setObject:[NSString stringWithFormat:@"10-%@",memberToSet] forKey:KEY_GRP_MBTOSET];
+            }
+        }
+        
+        ret = [self.mgr.mCallObj groupCall:SDK_GROUP_VIDEO param:dic];
+        if (EC_OK > ret)
+        {
+            CWLogDebug(@"多人操作失败:%@",[SdkObj ECodeToStr:ret]);
+            [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:PARM_ERROR" waitUntilDone:NO];
+            return EC_PARAM_WRONG;
+        }
+    }
+    else// if(!self.mgr.mCallObj)
+    {
+        CWLogDebug(@"请先呼叫");
+        [self performSelectorOnMainThread:@selector(cbGroupStatus:) withObject:@"ERROR:UNCALL" waitUntilDone:NO];
+        return EC_PARAM_WRONG;
+    }
+    
+    return ret;
+}
+
+-(void)onRecvEvent:(NSNotification *)notification
+{
+    if (nil == notification)
+    {
+        return;
+    }
+    if (nil == [notification userInfo])
+    {
+        return;
+    }
+    NSDictionary *data=[notification userInfo];
+    int msgid = [[data objectForKey:@"msgid"]intValue];
+    
+    if (4014 == msgid)//多人创建者自动接听
+    {
+        [self.mgr.mCallObj performSelector:@selector(doAcceptCall:) withObject:[NSNumber numberWithInt:AUDIO_VIDEO] afterDelay:0.1];
+        return;
+    }
+}
+#endif
 
 @end

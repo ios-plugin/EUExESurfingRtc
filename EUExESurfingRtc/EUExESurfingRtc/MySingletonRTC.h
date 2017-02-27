@@ -24,8 +24,9 @@
 @property (nonatomic,retain) CallObj*  mCallObj;
 @property(nonatomic,retain)NSString * terminalType;
 @property(nonatomic,retain)NSString * remoteTerminalType;
-@property(nonatomic,retain)NSString * str;
+@property(nonatomic,retain)NSString * userID;
 @property(nonatomic,retain)NSString * callName;
+@property(nonatomic,retain)NSString * nickName;
 @property(nonatomic,assign)SDK_ACCTYPE   accType;
 @property(nonatomic,assign)SDK_ACCTYPE   remoteAccType;
 @property(nonatomic,assign)int callTypes;
@@ -52,13 +53,19 @@
 @property(nonatomic,assign)BOOL isGettingToken;//正在获取token时不能重复获取
 @property (nonatomic,retain) dispatch_queue_t callBackDispatchQueue;
 @property(nonatomic,assign)BOOL isViewSwitch;
+@property(nonatomic,assign)BOOL isAPNs;
 @property(nonatomic,retain)NSString *notification;
-@property (nonatomic, retain) NSString *pushToken;
-@property (nonatomic, retain) NSDictionary *pushInfo;
+@property(nonatomic,retain)NSString *notification2;
+@property (nonatomic, retain)NSString *pushToken;
+@property (nonatomic, retain)NSString *pushInfo;
 @property(nonatomic,retain)NSString *pushId;
 @property(nonatomic,retain)NSString *pushKey;
 @property (nonatomic, retain) NSString *pushMasterSecret;
-//@property(nonatomic,assign)BOOL isKicked;
+@property(nonatomic,assign)SDK_GROUP_TYPE grpType;
+@property(nonatomic,assign)BOOL isGroup;//0为点对点，1为多人
+@property(nonatomic,assign)BOOL isGroupCreator;//0为普通成员，1为发起者
+@property(nonatomic,retain)NSString*   callID;
+@property (nonatomic, retain) NSMutableDictionary* calldic;
 
 + (instancetype)sharedInstance;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
@@ -68,6 +75,7 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler;
+- (void)applicationWillResignActive:(UIApplication *)application;
 - (void)setLog:(NSString*)log;
 - (void)doUnRegister;
 - (void)onRegister;

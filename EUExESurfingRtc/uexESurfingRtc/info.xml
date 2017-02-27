@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin uexName="uexESurfingRtc" version="3.0.18" build ="18">
-    	<info>18:xcode8编译支持iOS10，支持自定义通知</info>
+    <plugin uexName="uexESurfingRtc" version="3.0.19" build ="19">
+    	<info>19:修复bug，接入原生动态库，支持https，支持点对点推送接听</info>
+    		<build>18:新增多人会话接口，支持APNs推送，login增加昵称参数</build>
     		<build>17:xcode8编译支持iOS10，支持自定义通知</build>
     	  <build>16:优化通话流畅性与稳定性，恢复onGlobalStatus的回调时间</build>
     	  <build>15:优化多终端登录互踢机制，去掉onGlobalStatus的回调时间</build>
