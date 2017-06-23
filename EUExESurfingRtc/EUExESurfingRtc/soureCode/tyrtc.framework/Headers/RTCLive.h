@@ -27,6 +27,32 @@
 #define EC_UNSUPPORTED_FUNC     ECIDXMAKE(11)
 
 
+/*
+ * 支持的分辨率如下：
+ * width*height     width*height   比例
+ * 352x288(支持)          288x352(支持)           -- 11:9
+ * 704x576(支持)          576x704(支持)           -- 11:9
+ * 192x144(支持)          144x192(支持)           -- 12:9(4:3)
+ * 480x360(支持)          360x480(支持)           -- 12:9(4:3)
+ * 640x480(支持)          480x640(支持)           -- 12:9(4:3)
+ * 1280x960(支持)         960x1280(支持)          -- 12:9(4:3)
+ * 640x360(支持)          360x640(支持)           -- 16:9
+ * 960x540(支持)          540x960(支持)           -- 16:9
+ * 1280x720(支持)         720x1280(支持)          -- 16:9
+ * 1920x1080(支持)        1080x1920(支持)         -- 16:9
+ */
+
+typedef struct RTCLivePara {
+    int width;//视频宽度
+    int height;//视频高度
+    int videoFramerate;//视频帧率
+    int cameraId;//摄像头选择：0 后置摄像头，1 前置摄像头
+    int cameraOrientation;//AVCaptureVideoOrientation: AVCaptureVideoOrientationPortrait AVCaptureVideoOrientationLandscapeRight
+    int videoCodec;//编码器选择：0 硬件编码，1 软件编码
+    int onlyAudio;//仅音频直播：0 音视频，1 仅音频
+    void* localVideoWindow;//视频预览窗口
+} RTCLivePara;
+
 @protocol RTCLiveCallBackProtocol <NSObject>
 /**
  *   登陆RTC云平台结果回调
@@ -35,6 +61,7 @@
  *  @param error  错误原因
  */
 -(void)onNavigationResp:(int)code error:(NSString*)error;
+
 /**
  *  直播连麦消息到达回调
  *
@@ -56,6 +83,12 @@
  *  @return 错误码
  */
 -(int)onJoinCastNeedVideoWindow;
+
+/**
+ *  调用playMedia:(NSString *)mediaPath bounds:(CGRect)bounds函数之后的回调函数，设置当前视频的View
+ *  @return 错误码
+ */
+-(int)onPlayMediaViewAvailable:(UIView*)view;
 
 /**
  *  调用playMedia:(NSString *)mediaPath bounds:(CGRect)bounds函数之后的回调函数，设置当前视频的duration，单位秒
@@ -80,6 +113,7 @@
 //@"Unable to setup scaler"
 //@"Unable to setup resampler"
 //@"The ability is not supported"
+
 
 
 @interface RTCLive : NSObject
@@ -123,19 +157,19 @@
 -(int)loginRtcCloud:(NSString*)appId usrId:(NSString*)usrId capabilityToken:(NSString*)capabilityToken;
 
 /**
- *  播放直播：sdk构建播放界面和相关控制按钮以及交互响应
- *  @param mediaPath   媒体地址
- *  @return UIViewController，如果创建成功返回UIViewController，如果创建失败返回NULL
+ *  获取推流和播放地址，登录成功之后调用
+  *  @param appId      平台申请的inapplicationid
  */
-+(id)playMedia:(NSString *)mediaPath;
+-(int)getLiveChannel:(NSString*)accId andAccKey:(NSString*)accKey record:(NSString*)record;
 
 /**
  *  播放直播：sdk只是构建播放的UIView，不含控制按钮和交互响应
  *  @param mediaPath   媒体地址
  *  @param bounds      播放的位置：坐标和宽高构成的CGRect
- *  返回 UIView，如果创建成功返回UIView，如果创建失败返回NULL
+ *  返回 EC_OK或者错误码
+ *  如果创建成功，通过回调函数onPlayMediaViewAvailable返回UIView，如果创建失败回调函数onPlayMediaViewAvailable返回NULL
  */
--(id)playMedia:(NSString *)mediaPath bounds:(CGRect)bounds;
+-(int)playMedia:(NSString *)mediaPath bounds:(CGRect)bounds;
 
 /**
  *  暂停播放直播
@@ -169,28 +203,10 @@
 /**
  *  开始直播预览
  *  必须先调用此接口开始直播预览，在预览窗口可以切换摄像头
- *  @param width              视频宽度
- *  @param height             视频高度
- * 支持的分辨率如下：
- * width*height     width*height   比例
- * 352x288(支持)          288x352(支持)           -- 11:9
- * 704x576(支持)          576x704(支持)           -- 11:9
- * 192x144(支持)          144x192(支持)           -- 12:9(4:3)
- * 480x360(支持)          360x480(支持)           -- 12:9(4:3)
- * 640x480(支持)          480x640(支持)           -- 12:9(4:3)
- * 1280x960(支持)         960x1280(支持)          -- 12:9(4:3)
- * 640x360(支持)          360x640(支持)           -- 16:9
- * 960x540(支持)          540x960(支持)           -- 16:9
- * 1280x720(支持)         720x1280(支持)          -- 16:9
- * 1920x1080(支持)        1080x1920(支持)         -- 16:9
- *  @param videoFramerate     视频帧率
- *  @param cameraId           摄像头选择：0 后置摄像头，1 前置摄像头
- *  @param videoCodec         编码器选择：0 硬件编码，1 软件编码
- *  @param onlyAudio          仅音频直播：0 音视频，1 仅音频
- *  @param localVideoWindow   视频预览窗口
+ *  @param livePara
  *  @return EC_OK或者错误码
  */
--(int)startPreview:(int)width height:(int)height videoFramerate:(int)videoFramerate cameraId:(int)cameraId videoCodec:(int)videoCodec onlyAudio:(int)onlyAudio localVideoWindow:(void*)localVideoWindow;
+-(int)startPreview:(RTCLivePara*)livePara;
 
 /**
  *  开始直播
