@@ -27,6 +27,41 @@
     return sharedObject;
 }
 
+-(NSString*)getAPNsBody:(NSDictionary*)dic
+{
+    if(dic)
+    {
+        NSLog(@"aps key: %@",[dic objectForKey:@"key"]);
+        if([dic objectForKey:@"key"])
+        {
+            const char* cacc = [[dic objectForKey:@"key"] UTF8String];
+            int strindex1=0,strindex2=0;
+            int l = (int)strlen(cacc);
+            for(int i = 0;i<l;i++)
+            {
+                if(cacc[i]=='-')
+                {
+                    strindex1=i;
+                    break;
+                }
+            }
+            for(int i = 0;i<l;i++)
+            {
+                if(cacc[i]=='~')
+                {
+                    strindex2=i;
+                    break;
+                }
+            }
+            NSString* accNum = [[NSString stringWithUTF8String:cacc] substringWithRange:NSMakeRange(strindex1+1, strindex2-strindex1-1)];
+            return accNum;
+        }
+        
+        return nil;
+    }
+    return nil;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     lastStatus = 0;
@@ -34,14 +69,9 @@
     if(launchOptions)
     {
         NSDictionary* notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-        NSDictionary* aps = [notification objectForKey:@"aps"];
-        if([[aps objectForKey:@"alert"] isKindOfClass:[NSDictionary class]])
-        {
-            NSDictionary* alert = [aps objectForKey:@"alert"];
-            [self.pushInfo release];
-            self.pushInfo = [alert objectForKey:@"body"];
-            [self.pushInfo retain];
-        }
+        [self.pushInfo release];
+        self.pushInfo = [self getAPNsBody:notification];
+        [self.pushInfo retain];
     }
     
     // 注册APNS
@@ -103,18 +133,11 @@
     application.applicationIconBadgeNumber = 0; // 标签
     NSLog(@"\n>>>[Receive RemoteNotification]:%@\n\n", userInfo);
     //解析APNs通知
-    if(userInfo)
-    {
-        NSDictionary* aps = [userInfo objectForKey:@"aps"];
-        if([[aps objectForKey:@"alert"] isKindOfClass:[NSDictionary class]])
-        {
-            NSDictionary* alert = [aps objectForKey:@"alert"];
-            [self.pushInfo release];
-            self.pushInfo = [alert objectForKey:@"body"];
-            [self.pushInfo retain];
-            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
-        }
-    }
+    [self.pushInfo release];
+    self.pushInfo = [self getAPNsBody:userInfo];
+    [self.pushInfo retain];
+    if(self.pushInfo)
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
 }
 
 /* iOS7.0 以后支持APP后台刷新数据，会回调 performFetchWithCompletionHandler 接口*/
@@ -137,18 +160,11 @@
     else
     {
         //解析APNs通知
-        if(userInfo)
-        {
-            NSDictionary* aps = [userInfo objectForKey:@"aps"];
-            if([[aps objectForKey:@"alert"] isKindOfClass:[NSDictionary class]])
-            {
-                NSDictionary* alert = [aps objectForKey:@"alert"];
-                [self.pushInfo release];
-                self.pushInfo = [alert objectForKey:@"body"];
-                [self.pushInfo retain];
-                [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
-            }
-        }
+        [self.pushInfo release];
+        self.pushInfo = [self getAPNsBody:userInfo];
+        [self.pushInfo retain];
+        if(self.pushInfo)
+            [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:[NSString stringWithFormat:@"APNs:%@",self.pushInfo] waitUntilDone:NO];
     }
 }
 
@@ -229,11 +245,6 @@
     
     return self;
 }
-
-//-(void)onAccepted:(NSString*)senser
-//{
-//    [[NSNotificationCenter defaultCenter]  postNotificationName:@"ACCEPTED_EVENT" object:nil];
-//}
 
 -(void)cbLogStatus:(NSString*)senser{
     //[self jsSuccessWithName:@"uexESurfingRtc.cbLogStatus" opId:0 dataType:0 strData:senser];
@@ -385,24 +396,17 @@
     
     if(self.pushInfo && ![self.pushInfo isEqualToString:@""] && !self.mCallObj)
     {
-        NSArray* info = [self.pushInfo componentsSeparatedByString:@" "];
+        /*NSArray* info = [self.pushInfo componentsSeparatedByString:@" "];
         info = [[info objectAtIndex:1] componentsSeparatedByString:@" "];
         NSArray *num = [NSArray arrayWithObjects:[info objectAtIndex:0],nil];
-        NSString* numberString = [num componentsJoinedByString:@""];
-        
-        if(numberString && ![numberString isEqualToString:@""])
-        {
-            NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 numberString,KEY_CALLED,
-                                 [NSNumber numberWithInt:self.remoteAccType],KEY_CALL_REMOTE_ACC_TYPE,
-                                 self.remoteTerminalType,KEY_CALL_REMOTE_TERMINAL_TYPE,
-                                 @"reCallRequest",KEY_CALL_INFO,
-                                 nil];
-            [self.mAccObj doSendIM:dic];
-            [self.pushInfo release];
-            self.pushInfo = @"";
-            [self.pushInfo retain];
-        }
+        NSString* numberString = [num componentsJoinedByString:@""];*/
+        NSDictionary* dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.pushInfo,KEY_CALLED,
+                             [NSNumber numberWithInt:self.remoteAccType],KEY_CALL_REMOTE_ACC_TYPE,
+                             self.remoteTerminalType,KEY_CALL_REMOTE_TERMINAL_TYPE,
+                             @"reCallRequest",KEY_CALL_INFO,
+                             nil];
+        [self.mAccObj doSendIM:dic];
     }
 }
 
@@ -594,7 +598,12 @@
         [self performSelectorOnMainThread:@selector(cbLogStatus:) withObject:@"OK:LOGIN" waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"StateChanged,result=200" waitUntilDone:NO];
         
-         [self reCallRequest];
+        if([[[UIDevice currentDevice]systemVersion]floatValue]>=9.0)
+        {
+            //self.mAccObj.isBackground = NO;
+            //CWLogDebug(@"AccObj.isBackground = NO");
+            [self reCallRequest];
+        }
     }
     else
     {
@@ -651,7 +660,15 @@
     CWLogDebug(@"发送消息:%d",status);
     
     if(status == 200)
+    {
         [self performSelectorOnMainThread:@selector(cbMessageStatus:) withObject:@"OK:SEND" waitUntilDone:NO];
+        if(self.pushInfo)
+        {
+            [self.pushInfo release];
+            self.pushInfo = @"";
+            [self.pushInfo retain];
+        }
+    }
     else// if(status == 404)
         [self performSelectorOnMainThread:@selector(cbMessageStatus:) withObject:[NSString stringWithFormat:@"ERROR:%d",status] waitUntilDone:NO];
     
@@ -693,18 +710,15 @@
         
         if([content isEqualToString:@"reCallRequest"])
         {
-            if(self.mCallObj)
+            if(self.mCallObj && self.calldic)
             {
                 [self.mCallObj doHangupCall];
                 [self.mCallObj setDelegate:self];
                 [self.mCallObj bindAcc:self.mAccObj];
                 
-                if(self.calldic)
-                {
-                    int ret = [self.mCallObj doMakeCall:self.calldic];
-                    [self.calldic release];
-                    self.calldic = nil;
-                }
+                int ret = [self.mCallObj doMakeCall:self.calldic];
+                [self.calldic release];
+                self.calldic = nil;
             }
         }
         else
@@ -944,9 +958,9 @@
     {
         int ret = [callObj doSetCallVideoWindow:self.remoteVideoView localVideoWindow:self.localVideoView];
         [self setLog:[NSString stringWithFormat:@"%d",ret]];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onVideo" waitUntilDone:NO];
     }
-    [self setMotionStatus:YES];
+    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onVideo" waitUntilDone:NO];
+    [self setMotionStatus:NO];
     [self setCallIncomingFlag:NO];
     self.isViewSwitch = NO;
     
@@ -1704,7 +1718,7 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
 
 -(void)willResignActiveNotification:(NSNotification *) notification
 {
-    if(!self.mCallObj && [[[UIDevice currentDevice]systemVersion]floatValue]>=10.0)
+    if(!self.mCallObj && [[[UIDevice currentDevice]systemVersion]floatValue]>=9.0)
     {
         if (self.mAccObj)
         {
@@ -1728,11 +1742,12 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
 
 -(void)enterForegroundNotification:(NSNotification *) notification
 {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
-        self.mAccObj.isBackground = NO;
-        CWLogDebug(@"AccObj.isBackground = NO");
-        [self reCallRequest];
-    });
+    if([[[UIDevice currentDevice]systemVersion]floatValue]>=9.0)
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
+            self.mAccObj.isBackground = NO;
+            CWLogDebug(@"AccObj.isBackground = NO");
+            [self reCallRequest];
+        });
     if (!self.mSDKObj || ![self.mSDKObj isInitOk] || !self.mAccObj || ![self.mAccObj isRegisted])
     {
         CWLogDebug(@"isGettingToken:%d",self.isGettingToken);
