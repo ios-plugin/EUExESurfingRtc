@@ -430,6 +430,7 @@ typedef enum {
  */
 -(int)doManageUploadFile:(NSDictionary*)param;
 
+-(int)getLiveChannel:(NSString*)accId andAccKey:(NSString*)accKey record:(NSString*)record;
 @end
 
 

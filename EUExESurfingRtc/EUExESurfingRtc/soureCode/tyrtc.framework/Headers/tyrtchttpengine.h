@@ -5,6 +5,7 @@
 typedef void (^GetTokenOkBlock)(BOOL ok,NSDictionary* dic);
 typedef void (^GetAddressesOkBlock)(BOOL ok,NSDictionary* dic);
 typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
+typedef void (^RespUIBlock)(UIView* view);
 
 -(MKNetworkOperationRTC*) getServerAddresses:(NSString*)httpMethod
                                    useSSL:(BOOL)useSSL
@@ -24,7 +25,7 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                               grantStr:(NSString*)grantStr
                            callbackURL:(NSString*)callbackURL
                      completionHandler:(RespOkBlock) completionBlock
-                          errorHandler:(MKNKErrorBlock) errorBlockr;
+                          errorHandler:(MKNKErrorBlock) errorBlock;
 
 -(MKNetworkOperationRTC*) setPushInfo:(NSString*)httpMethod
                                useSSL:(BOOL)useSSL
@@ -266,4 +267,19 @@ typedef void (^RespOkBlock)(BOOL ok,NSDictionary* dic);
                              completionHandler:(RespOkBlock) completionBlock
                                   errorHandler:(MKNKErrorBlock) errorBlock;
 
+-(MKNetworkOperationRTC*) getLiveChannel:(NSString*)httpMethod
+                                  useSSL:(BOOL)useSSL
+                                   appId:(NSString*)appId
+                                  appKey:(NSString*)appKey
+                                   accId:(NSString*)accId
+                             startOption:(NSString*)startOption
+                               channelID:(NSString*)channelID
+                             channelType:(int)channelType
+                                  record:(NSString*)record
+                            optimization:(NSString*)optimization
+                                  pushIp:(NSString*)pushIp
+                                    rate:(int)rate
+                             callbackURL:(NSString*)callbackURL
+                       completionHandler:(RespOkBlock) completionBlock
+                            errorHandler:(MKNKErrorBlock) errorBlock;
 @end
