@@ -239,6 +239,7 @@
         }
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didBecomeActiveNotification:) name:UIApplicationDidBecomeActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
@@ -868,7 +869,7 @@
         [self.remoteVideoView setHidden:NO];
         //[self performSelectorOnMainThread:@selector(onAccepted:) withObject:nil waitUntilDone:NO];
         [self.mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
-        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
+        //[self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
         [self setCallIncomingFlag:NO];
     }
     else  if (type == SDK_CALLBACK_CLOSED)
@@ -946,6 +947,8 @@
 -(int)onCallMediaCreated:(int)mediaType callObj:(CallObj *)callObj
 {
     [self.mCallObj doSwitchAudioDevice:SDK_AUDIO_OUTPUT_DEFAULT];
+    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onConnected" waitUntilDone:NO];
+    
     //#if(SDK_HAS_GROUP>0)
     if(self.isGroup != 0 && self.grpType<20)//多人语音
     {
@@ -958,8 +961,9 @@
     {
         int ret = [callObj doSetCallVideoWindow:self.remoteVideoView localVideoWindow:self.localVideoView];
         [self setLog:[NSString stringWithFormat:@"%d",ret]];
+        [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onVideo" waitUntilDone:NO];
     }
-    [self performSelectorOnMainThread:@selector(onGlobalStatus:) withObject:@"ConnectionListener:onVideo" waitUntilDone:NO];
+
     [self setMotionStatus:NO];
     [self setCallIncomingFlag:NO];
     self.isViewSwitch = NO;
@@ -1723,6 +1727,17 @@ static void onNotifyCallback(CFNotificationCenterRef center, void *observer, CFS
         if (self.mAccObj)
         {
             self.mAccObj.isBackground = YES;
+        }
+    }
+}
+
+-(void)didBecomeActiveNotification:(NSNotification *) notification
+{
+    if([[[UIDevice currentDevice]systemVersion]floatValue]>=9.0)
+    {
+        if (self.mAccObj)
+        {
+            self.mAccObj.isBackground = NO;
         }
     }
 }
